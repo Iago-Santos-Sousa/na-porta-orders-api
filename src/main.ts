@@ -3,9 +3,12 @@ import { AppModule } from "./app.module";
 import { ValidationPipe } from "@nestjs/common";
 import { SwaggerModule, DocumentBuilder, SwaggerDocumentOptions } from "@nestjs/swagger";
 import cookieParser from "cookie-parser";
+import helmet from "helmet";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  app.use(helmet());
 
   app.use(cookieParser());
 
@@ -56,8 +59,8 @@ async function bootstrap() {
 
   SwaggerModule.setup("docs", app, document);
 
-  await app.listen(process.env.APP_PORT ?? 3001);
+  await app.listen(process.env.APP_PORT ?? 8080);
 }
 bootstrap()
-  .then(() => console.log(`Server running on port: ${process.env.APP_PORT ?? 3001}`))
+  .then(() => console.log(`Server running on port: ${process.env.APP_PORT ?? 8080}`))
   .catch((err) => console.error(err));

@@ -3,7 +3,7 @@ import { LoggerMiddleware } from "./common/middleware/logger.middleware";
 import { ConfigModule } from "@nestjs/config";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
-import { TypeOrmModule, TypeOrmModuleOptions } from "@nestjs/typeorm";
+import { TypeOrmModule } from "@nestjs/typeorm";
 import { DataSource } from "typeorm";
 import { ThrottlerModule, ThrottlerGuard } from "@nestjs/throttler";
 import { APP_GUARD } from "@nestjs/core";
@@ -20,7 +20,7 @@ import { dataSourceOptions } from "../data-source";
       envFilePath: ".env",
     }),
 
-    TypeOrmModule.forRoot(dataSourceOptions as TypeOrmModuleOptions),
+    TypeOrmModule.forRoot(dataSourceOptions),
     ThrottlerModule.forRoot([
       {
         ttl: 60000,
