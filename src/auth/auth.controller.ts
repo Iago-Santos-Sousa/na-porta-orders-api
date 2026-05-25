@@ -8,7 +8,7 @@ import {
   UnauthorizedException,
 } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
-import type { Request, Response } from "express";
+import type { Request } from "express";
 import { CurrentUser } from "./current-user.decorator";
 import { CurrentUserDto } from "./dto/current-user.dto";
 import { AuthService } from "./auth.service";
