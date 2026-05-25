@@ -11,7 +11,7 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AddressService } from './address.service';
 import { CreateAddressDto } from './dto/create-address.dto';
 import { UpdateAddressDto } from './dto/update-address.dto';
@@ -19,41 +19,48 @@ import { PageOptionsDto } from '../common/dtos/page-options.dto';
 import { AddressDocs } from './address.docs';
 
 @ApiTags('address')
+@ApiBearerAuth()
 @Controller('address')
 export class AddressController {
   constructor(private readonly addressService: AddressService) {}
 
   @Post()
+  @HttpCode(HttpStatus.CREATED)
   @AddressDocs.create()
-  create(@Body() createAddressDto: CreateAddressDto) {
-    return this.addressService.create(createAddressDto);
+  async create(@Body() createAddressDto: CreateAddressDto) {
+    const data = await this.addressService.create(createAddressDto);
+    return { message: 'Address created successfully', data };
   }
 
   @Get()
   @AddressDocs.findAll()
-  findAll(@Query() pageOptionsDto: PageOptionsDto) {
-    return this.addressService.findAll(pageOptionsDto);
+  async findAll(@Query() pageOptionsDto: PageOptionsDto) {
+    const data = await this.addressService.findAll(pageOptionsDto);
+    return { message: 'Addresses retrieved successfully', data };
   }
 
   @Get(':id')
   @AddressDocs.findOne()
-  findOne(@Param('id', ParseUUIDPipe) id: string) {
-    return this.addressService.findOne(id);
+  async findOne(@Param('id', ParseUUIDPipe) id: string) {
+    const data = await this.addressService.findOne(id);
+    return { message: 'Address found', data };
   }
 
   @Patch(':id')
   @AddressDocs.update()
-  update(
+  async update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateAddressDto: UpdateAddressDto,
   ) {
-    return this.addressService.update(id, updateAddressDto);
+    const data = await this.addressService.update(id, updateAddressDto);
+    return { message: 'Address updated successfully', data };
   }
 
   @Delete(':id')
-  @HttpCode(HttpStatus.NO_CONTENT)
+  @HttpCode(HttpStatus.OK)
   @AddressDocs.remove()
-  remove(@Param('id', ParseUUIDPipe) id: string) {
-    return this.addressService.remove(id);
+  async remove(@Param('id', ParseUUIDPipe) id: string) {
+    await this.addressService.remove(id);
+    return { message: `Address ${id} was successfully removed` };
   }
 }

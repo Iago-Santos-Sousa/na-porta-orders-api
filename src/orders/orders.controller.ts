@@ -11,7 +11,7 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
@@ -19,41 +19,48 @@ import { FilterOrderDto } from './dto/filter-order.dto';
 import { OrdersDocs } from './orders.docs';
 
 @ApiTags('orders')
+@ApiBearerAuth()
 @Controller('orders')
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
   @Post()
+  @HttpCode(HttpStatus.CREATED)
   @OrdersDocs.create()
-  create(@Body() createOrderDto: CreateOrderDto) {
-    return this.ordersService.create(createOrderDto);
+  async create(@Body() createOrderDto: CreateOrderDto) {
+    const data = await this.ordersService.create(createOrderDto);
+    return { message: 'Order created successfully', data };
   }
 
   @Get()
   @OrdersDocs.findAll()
-  findAll(@Query() filterOrderDto: FilterOrderDto) {
-    return this.ordersService.findAll(filterOrderDto);
+  async findAll(@Query() filterOrderDto: FilterOrderDto) {
+    const data = await this.ordersService.findAll(filterOrderDto);
+    return { message: 'Orders retrieved successfully', data };
   }
 
   @Get(':id')
   @OrdersDocs.findOne()
-  findOne(@Param('id', ParseUUIDPipe) id: string) {
-    return this.ordersService.findOne(id);
+  async findOne(@Param('id', ParseUUIDPipe) id: string) {
+    const data = await this.ordersService.findOne(id);
+    return { message: 'Order found', data };
   }
 
   @Patch(':id')
   @OrdersDocs.update()
-  update(
+  async update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateOrderDto: UpdateOrderDto,
   ) {
-    return this.ordersService.update(id, updateOrderDto);
+    const data = await this.ordersService.update(id, updateOrderDto);
+    return { message: 'Order updated successfully', data };
   }
 
   @Delete(':id')
-  @HttpCode(HttpStatus.NO_CONTENT)
+  @HttpCode(HttpStatus.OK)
   @OrdersDocs.remove()
-  remove(@Param('id', ParseUUIDPipe) id: string) {
-    return this.ordersService.remove(id);
+  async remove(@Param('id', ParseUUIDPipe) id: string) {
+    await this.ordersService.remove(id);
+    return { message: `Order ${id} was successfully removed` };
   }
 }

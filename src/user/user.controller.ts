@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import {
   Controller,
   Get,
@@ -25,13 +22,7 @@ import { UserRole } from '@/utils/enums';
 import { ApiPaginatedResponse } from '@/common/decorators/api-paginated-response.decorator';
 import { UserDto } from './dto/user.dto';
 import { PageDto, PageOptionsDto } from '@/common/dtos';
-import {
-  CreateUserDocs,
-  GetAllUsersDocs,
-  GetUserByIdDocs,
-  UpdateUserByIdDocs,
-  DeleteUserByIdDocs,
-} from './user.docs';
+import { UserDocs } from './user.docs';
 
 @ApiTags('User')
 @Controller('user')
@@ -42,7 +33,7 @@ export class UserController {
   @Public()
   @Post()
   @HttpCode(201)
-  @CreateUserDocs()
+  @UserDocs.create()
   async create(@Body() createUserDto: CreateUserDto) {
     const data = await this.userService.create(createUserDto);
     return {
@@ -64,7 +55,7 @@ export class UserController {
   @UseInterceptors(ClassSerializerInterceptor)
   @Roles(UserRole.ADMIN)
   @Get()
-  @GetAllUsersDocs()
+  @UserDocs.getAll()
   async findAll() {
     const data = await this.userService.findAll();
     return {
@@ -74,7 +65,7 @@ export class UserController {
   }
 
   @Get(':id')
-  @GetUserByIdDocs()
+  @UserDocs.getById()
   async findOne(@Param('id', ParseIntPipe) id: number) {
     const data = await this.userService.findOne(id);
     return {
@@ -85,7 +76,7 @@ export class UserController {
 
   @Patch(':id')
   @HttpCode(200)
-  @UpdateUserByIdDocs()
+  @UserDocs.update()
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateUserDto: UpdateUserDto,
@@ -100,7 +91,7 @@ export class UserController {
   @Roles(UserRole.ADMIN)
   @Delete(':id')
   @HttpCode(200)
-  @DeleteUserByIdDocs()
+  @UserDocs.remove()
   async remove(@Param('id', ParseIntPipe) id: number) {
     await this.userService.remove(id);
     return {

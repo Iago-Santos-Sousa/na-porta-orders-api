@@ -9,13 +9,13 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 import { CurrentUser } from './current-user.decorator';
 import { CurrentUserDto } from './current-user.dto';
 import { AuthService } from './auth.service';
 import { SignInDto } from './dto/signin.dto';
 import { Public } from '@/common/decorators/skipAuth.decorator';
-import { LogoutDocs, RefreshTokenDocs, SignInDocs } from './auth.docs';
+import { AuthDocs } from './auth.docs';
 
 const ACCESS_TOKEN_COOKIE_MS = 20 * 60 * 1000;
 const REFRESH_TOKEN_COOKIE_MS = 7 * 24 * 60 * 60 * 1000;
@@ -34,7 +34,7 @@ export class AuthController {
   @Public()
   @HttpCode(HttpStatus.CREATED)
   @Post('login')
-  @SignInDocs()
+  @AuthDocs.signIn()
   async signIn(
     @Body() signInDto: SignInDto,
     @Res({ passthrough: true }) res: Response,
@@ -65,7 +65,7 @@ export class AuthController {
   @Public()
   @HttpCode(HttpStatus.CREATED)
   @Post('refresh-token')
-  @RefreshTokenDocs()
+  @AuthDocs.refreshToken()
   async refreshToken(
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
@@ -101,7 +101,7 @@ export class AuthController {
 
   @Post('logout')
   @HttpCode(HttpStatus.OK)
-  @LogoutDocs()
+  @AuthDocs.logout()
   async logout(
     @CurrentUser() user: CurrentUserDto,
     @Res({ passthrough: true }) res: Response,

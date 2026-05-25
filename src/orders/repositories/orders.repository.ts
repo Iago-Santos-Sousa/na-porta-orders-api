@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { DataSource, Repository } from 'typeorm';
-import { endOfDay, startOfDay } from 'date-fns';
+import { endOfDay, parse, startOfDay } from 'date-fns';
 import { Order } from '../entities/order.entity';
 import { FilterOrderDto } from '../dto/filter-order.dto';
 import { PageMetaDto } from '../../common/dtos/page-meta.dto';
@@ -30,13 +30,13 @@ export class OrderRepository extends Repository<Order> {
 
     if (dto.start_date) {
       qb.andWhere('order.created_at >= :start_date', {
-        start_date: startOfDay(new Date(dto.start_date)),
+        start_date: startOfDay(parse(dto.start_date, 'dd/MM/yyyy', new Date())),
       });
     }
 
     if (dto.end_date) {
       qb.andWhere('order.created_at <= :end_date', {
-        end_date: endOfDay(new Date(dto.end_date)),
+        end_date: endOfDay(parse(dto.end_date, 'dd/MM/yyyy', new Date())),
       });
     }
 

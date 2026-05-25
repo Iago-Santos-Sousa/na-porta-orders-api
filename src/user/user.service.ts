@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   Injectable,
@@ -110,10 +108,10 @@ export class UserService {
       throw new NotFoundException(`User with id ${user_id} not found`);
     }
 
-    const mergedUser = this.userRepository.merge(user, updateUserDto);
+    const mergedUser = Object.assign(user, updateUserDto);
     const updatedUser = await this.userRepository.save(mergedUser);
-
     const { password, refresh_token, ...safeUser } = updatedUser;
+
     return {
       user: safeUser,
     };
@@ -135,13 +133,6 @@ export class UserService {
     pageOptionsDto: PageOptionsDto,
   ): Promise<PageDto<UserDto>> {
     const queryBuilder = this.userRepository.createQueryBuilder('user');
-    console.log(
-      pageOptionsDto.page,
-      pageOptionsDto.skip,
-      pageOptionsDto.order,
-      pageOptionsDto.take,
-    );
-
     queryBuilder.withDeleted();
     queryBuilder
       .skip(pageOptionsDto.skip)
