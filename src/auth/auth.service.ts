@@ -1,19 +1,14 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { UserService } from '../user/user.service';
-import { JwtService } from '@nestjs/jwt';
-import { SignInResponseDto } from './dto/signin-response.dto';
-import type {
-  AuthTokenPayload,
-  AuthUserPayload,
-} from '../common/types/auth-token-payload.type';
+import { Injectable, UnauthorizedException } from "@nestjs/common";
+import { UserService } from "@/user/user.service";
+import { JwtService } from "@nestjs/jwt";
+import { SignInResponseDto } from "./dto/signin-response.dto";
+import type { AuthTokenPayload, AuthUserPayload } from "@/common/types/auth-token-payload.type";
 import {
   buildAuthUserPayload,
   buildTokenPayload,
   compareSaltedHash,
   createSaltedHash,
-} from '../utils/auth.utils';
+} from "@/utils/auth.utils";
 
 @Injectable()
 export class AuthService {
@@ -24,26 +19,20 @@ export class AuthService {
 
   private signTokens(payload: AuthUserPayload) {
     const accessTokenExpiresIn = (process.env.JWT_EXPIRES ??
-      '20m') as `${number}${'s' | 'm' | 'h' | 'd'}`;
+      "20m") as `${number}${"s" | "m" | "h" | "d"}`;
 
     const refreshTokenExpiresIn = (process.env.JWT_REFRESH_EXPIRES ??
-      '7d') as `${number}${'s' | 'm' | 'h' | 'd'}`;
+      "7d") as `${number}${"s" | "m" | "h" | "d"}`;
 
-    const accessToken = this.jwtService.sign(
-      buildTokenPayload(payload, 'access_token'),
-      {
-        expiresIn: accessTokenExpiresIn,
-        secret: process.env.JWT_SECRET,
-      },
-    );
+    const accessToken = this.jwtService.sign(buildTokenPayload(payload, "access_token"), {
+      expiresIn: accessTokenExpiresIn,
+      secret: process.env.JWT_SECRET,
+    });
 
-    const refreshToken = this.jwtService.sign(
-      buildTokenPayload(payload, 'refresh_token'),
-      {
-        expiresIn: refreshTokenExpiresIn,
-        secret: process.env.JWT_REFRESH_SECRET,
-      },
-    );
+    const refreshToken = this.jwtService.sign(buildTokenPayload(payload, "refresh_token"), {
+      expiresIn: refreshTokenExpiresIn,
+      secret: process.env.JWT_REFRESH_SECRET,
+    });
 
     return {
       accessToken,
@@ -51,10 +40,7 @@ export class AuthService {
     };
   }
 
-  private async persistRefreshToken(
-    userId: number,
-    refreshToken: string,
-  ): Promise<void> {
+  private async persistRefreshToken(userId: number, refreshToken: string): Promise<void> {
     const hashedRefreshToken = await createSaltedHash(refreshToken);
     await this.userService.updateRefreshToken(userId, hashedRefreshToken);
   }
@@ -87,15 +73,12 @@ export class AuthService {
       });
 
       if (!decoded) throw new UnauthorizedException();
-      if (decoded.type !== 'refresh_token') throw new UnauthorizedException();
+      if (decoded.type !== "refresh_token") throw new UnauthorizedException();
 
       const user = await this.userService.findById(decoded.sub);
       if (!user || !user.refresh_token) throw new UnauthorizedException();
 
-      const refreshTokenMatches = await compareSaltedHash(
-        refresh_token,
-        user.refresh_token,
-      );
+      const refreshTokenMatches = await compareSaltedHash(refresh_token, user.refresh_token);
 
       if (!refreshTokenMatches) {
         throw new UnauthorizedException();
@@ -103,8 +86,7 @@ export class AuthService {
 
       const newPayload = buildAuthUserPayload(user);
 
-      const { accessToken, refreshToken: newRefreshToken } =
-        this.signTokens(newPayload);
+      const { accessToken, refreshToken: newRefreshToken } = this.signTokens(newPayload);
 
       await this.persistRefreshToken(user.user_id, newRefreshToken);
 

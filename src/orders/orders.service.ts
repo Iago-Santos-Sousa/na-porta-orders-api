@@ -3,21 +3,18 @@ import {
   Injectable,
   InternalServerErrorException,
   NotFoundException,
-} from '@nestjs/common';
-import { DataSource } from 'typeorm';
-import { CreateOrderDto } from './dto/create-order.dto';
-import { UpdateOrderDto } from './dto/update-order.dto';
-import { FilterOrderDto } from './dto/filter-order.dto';
-import { OrderRepository } from './repositories/orders.repository';
-import { AddressRepository } from '../address/repositories/address.repository';
-import { Order } from './entities/order.entity';
-import { OrderItem } from './entities/order-item.entity';
-import { PageDto } from '../common/dtos/page.dto';
-import {
-  parseApiEndDate,
-  parseApiStartDate,
-} from '../common/utils/api-date.util';
-import { OrderQueryFilters } from './types/order-query-filters.type';
+} from "@nestjs/common";
+import { DataSource } from "typeorm";
+import { CreateOrderDto } from "./dto/create-order.dto";
+import { UpdateOrderDto } from "./dto/update-order.dto";
+import { FilterOrderDto } from "./dto/filter-order.dto";
+import { OrderRepository } from "./repositories/orders.repository";
+import { AddressRepository } from "@/address/repositories/address.repository";
+import { Order } from "./entities/order.entity";
+import { OrderItem } from "./entities/order-item.entity";
+import { PageDto } from "@/common/dtos/page.dto";
+import { parseApiEndDate, parseApiStartDate } from "@/common/utils/api-date.util";
+import { OrderQueryFilters } from "./types/order-query-filters.type";
 
 @Injectable()
 export class OrdersService {
@@ -32,16 +29,11 @@ export class OrdersService {
       ? parseApiStartDate(filterOrderDto.start_date)
       : undefined;
 
-    const endDate = filterOrderDto.end_date
-      ? parseApiEndDate(filterOrderDto.end_date)
-      : undefined;
-
+    const endDate = filterOrderDto.end_date ? parseApiEndDate(filterOrderDto.end_date) : undefined;
     const skip = (filterOrderDto.page - 1) * filterOrderDto.take;
 
     if (startDate && endDate && startDate > endDate) {
-      throw new BadRequestException(
-        'start_date must be before or equal to end_date',
-      );
+      throw new BadRequestException("start_date must be before or equal to end_date");
     }
 
     return {
@@ -74,7 +66,7 @@ export class OrdersService {
         return manager.save(Order, order);
       });
     } catch {
-      throw new InternalServerErrorException('Failed to create order');
+      throw new InternalServerErrorException("Failed to create order");
     }
   }
 
@@ -86,7 +78,7 @@ export class OrdersService {
   async findOne(order_id: string): Promise<Order> {
     const order = await this.orderRepository.findOne({
       where: { order_id },
-      relations: ['delivery_address', 'items'],
+      relations: ["delivery_address", "items"],
       withDeleted: false,
     });
 
@@ -97,10 +89,7 @@ export class OrdersService {
     return order;
   }
 
-  async update(
-    order_id: string,
-    updateOrderDto: UpdateOrderDto,
-  ): Promise<Order> {
+  async update(order_id: string, updateOrderDto: UpdateOrderDto): Promise<Order> {
     await this.findOne(order_id);
 
     const { items, delivery_address_id, ...orderData } = updateOrderDto;
@@ -141,7 +130,7 @@ export class OrdersService {
         return this.findOne(order_id);
       });
     } catch {
-      throw new InternalServerErrorException('Failed to update order');
+      throw new InternalServerErrorException("Failed to update order");
     }
   }
 

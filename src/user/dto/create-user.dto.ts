@@ -6,39 +6,39 @@ import {
   MinLength,
   MaxLength,
   IsEnum,
-} from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
-import { Transform } from 'class-transformer';
-import { UserRole } from '../../utils/enums';
+} from "class-validator";
+import { ApiProperty } from "@nestjs/swagger";
+import { Transform } from "class-transformer";
+import { UserRole } from "@/utils/enums";
 
 export class CreateUserDto {
-  @ApiProperty({ description: 'Username', example: 'Jhon Doe' })
+  @ApiProperty({ description: "Username", example: "Jhon Doe" })
   @IsNotEmpty()
   @IsString()
   @MinLength(3)
   @Transform(({ value }: { value: string }) => value?.trim())
   name!: string;
 
-  @ApiProperty({ description: 'User E-mail', example: 'jhon.doe@gmail.com' })
-  @IsNotEmpty({ message: 'Email cannot be empty' })
-  @IsEmail({}, { message: 'The provided email is not valid' })
+  @ApiProperty({ description: "User E-mail", example: "jhon.doe@gmail.com" })
+  @IsNotEmpty({ message: "Email cannot be empty" })
+  @IsEmail({}, { message: "The provided email is not valid" })
   @Transform(({ value }: { value: string }) => value?.trim())
   email!: string;
 
-  @ApiProperty({ description: 'user password', example: '123456' })
+  @ApiProperty({ description: "user password", example: "123456" })
   @IsNotEmpty()
   @IsString()
   @MinLength(6)
-  @MaxLength(30)
+  @MaxLength(50)
   @Transform(({ value }: { value: string }) => value?.trim())
   password!: string;
   @ApiProperty({
-    description: 'user permission',
-    type: 'string',
-    example: 'user',
-    default: 'user',
+    description: "user permission",
+    type: "string",
+    example: "user",
+    default: "user",
   })
-  @IsNotEmpty({ message: 'Role cannot be empty' })
-  @IsEnum(UserRole, { message: 'Role must be user or admin' })
+  @IsNotEmpty({ message: "Role cannot be empty" })
+  @IsEnum(UserRole, { message: "Role must be user or admin" })
   role!: UserRole;
 }

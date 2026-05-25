@@ -1,19 +1,19 @@
-import { ApiProperty, OmitType, PickType } from '@nestjs/swagger';
-import { IsOptional } from 'class-validator';
+import { ApiProperty, OmitType, PickType } from "@nestjs/swagger";
+import { IsOptional } from "class-validator";
 
 export class UsersDto {
   @ApiProperty({ example: 1 })
   user_id!: number;
 
-  @ApiProperty({ example: 'John Doe' })
+  @ApiProperty({ example: "John Doe" })
   name!: string;
 
   @ApiProperty({
-    example: 'john.doe@example.com',
+    example: "john.doe@example.com",
   })
   email!: string;
 
-  @ApiProperty({ example: 'user' })
+  @ApiProperty({ example: "user" })
   role!: string;
 
   @ApiProperty({ required: false })
@@ -25,22 +25,22 @@ export class UsersDto {
 }
 
 export class UserCreatedResponseDto {
-  @ApiProperty({ example: 'User created successfully' })
+  @ApiProperty({ example: "User created successfully" })
   message!: string;
 
   @ApiProperty({
-    type: PickType(UsersDto, ['user_id', 'name', 'email', 'role'] as const),
+    type: PickType(UsersDto, ["user_id", "name", "email", "role"] as const),
   })
-  user!: Omit<UsersDto, 'created_at' | 'updated_at'>;
+  user!: Omit<UsersDto, "created_at" | "updated_at">;
 }
 
 export class UserUpdatedResponseDto extends UserCreatedResponseDto {
-  @ApiProperty({ example: 'User updated' })
-  message: string = 'User updated';
+  @ApiProperty({ example: "User updated" })
+  message: string = "User updated";
 }
 
 export class UserResponseDto {
-  @ApiProperty({ example: 'User found' })
+  @ApiProperty({ example: "User found" })
   message?: string;
 
   @ApiProperty({
@@ -61,7 +61,7 @@ export class UserResponseDto {
 }
 
 export class UsersResponseDto {
-  @ApiProperty({ example: 'Users retrieved successfully' })
+  @ApiProperty({ example: "Users retrieved successfully" })
   message?: string;
 
   @ApiProperty({

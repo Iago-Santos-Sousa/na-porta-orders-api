@@ -1,17 +1,17 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { Exclude } from 'class-transformer';
+import { ApiProperty } from "@nestjs/swagger";
+import { Exclude } from "class-transformer";
 
 export class UserDto {
   @ApiProperty({ example: 1 })
   user_id!: number;
 
-  @ApiProperty({ example: 'Jhon Doe' })
+  @ApiProperty({ example: "Jhon Doe" })
   name!: string;
 
-  @ApiProperty({ example: 'jhon.doe@gmail.com' })
+  @ApiProperty({ example: "jhon.doe@gmail.com" })
   email!: string;
 
-  @ApiProperty({ example: 'user' })
+  @ApiProperty({ example: "user" })
   role!: string;
 
   @Exclude()

@@ -1,22 +1,17 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import {
-  Injectable,
-  NotFoundException,
-  HttpException,
-  HttpStatus,
-} from '@nestjs/common';
-import { User } from './entities/user.entity';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { UserResponseDto, UsersResponseDto } from './dto/user-response.dto';
-import { PageDto } from '../common/dtos/page.dto';
-import type { PageMetaDto } from '../common/dtos/page-meta.dto';
-import { PageOptionsDto } from '../common/dtos/page-options.dto';
-import { UserDto } from './dto/user.dto';
-import { randomBytes, scrypt as _scrypt } from 'crypto';
-import { promisify } from 'util';
-import { UserRepository } from './repositories/user.repository';
-import { Order as SortOrder } from '../common/constants/order.constant';
+import { Injectable, NotFoundException, HttpException, HttpStatus } from "@nestjs/common";
+import { User } from "./entities/user.entity";
+import { CreateUserDto } from "./dto/create-user.dto";
+import { UpdateUserDto } from "./dto/update-user.dto";
+import { UserResponseDto, UsersResponseDto } from "./dto/user-response.dto";
+import { PageDto } from "@/common/dtos/page.dto";
+import type { PageMetaDto } from "@/common/dtos/page-meta.dto";
+import { PageOptionsDto } from "@/common/dtos/page-options.dto";
+import { UserDto } from "./dto/user.dto";
+import { randomBytes, scrypt as _scrypt } from "crypto";
+import { promisify } from "util";
+import { UserRepository } from "./repositories/user.repository";
+import { Order as SortOrder } from "@/common/constants/order.constant";
 const scrypt = promisify(_scrypt);
 
 @Injectable()
@@ -30,17 +25,13 @@ export class UserService {
       });
 
       if (existUser) {
-        throw new HttpException('Email already exists', HttpStatus.CONFLICT);
+        throw new HttpException("Email already exists", HttpStatus.CONFLICT);
       }
 
-      const salt = randomBytes(8).toString('hex'); // unique salt per registration
-      const hashPassword = (await scrypt(
-        createUserDto.password,
-        salt,
-        32,
-      )) as Buffer;
+      const salt = randomBytes(8).toString("hex"); // unique salt per registration
+      const hashPassword = (await scrypt(createUserDto.password, salt, 32)) as Buffer;
 
-      const saltAndHashPassword = `${salt}.${hashPassword.toString('hex')}`;
+      const saltAndHashPassword = `${salt}.${hashPassword.toString("hex")}`;
       const createdUser = this.userRepository.create({
         ...createUserDto,
         password: saltAndHashPassword,
@@ -70,18 +61,12 @@ export class UserService {
 
     if (!user) throw new NotFoundException(`User with ID ${user_id} not found`);
 
-    const {
-      password,
-      refresh_token,
-      reset_token,
-      reset_token_expiry,
-      ...safeUser
-    } = user;
+    const { password, refresh_token, reset_token, reset_token_expiry, ...safeUser } = user;
 
     const userDto = new UserDto(safeUser);
 
     return {
-      message: 'User found',
+      message: "User found",
       user: userDto,
     };
   }
@@ -98,10 +83,7 @@ export class UserService {
     });
   }
 
-  async update(
-    user_id: number,
-    updateUserDto: UpdateUserDto,
-  ): Promise<UserResponseDto> {
+  async update(user_id: number, updateUserDto: UpdateUserDto): Promise<UserResponseDto> {
     const user = await this.userRepository.findOne({
       where: { user_id },
     });
@@ -131,18 +113,16 @@ export class UserService {
     await this.userRepository.delete(user_id);
   }
 
-  async findUsersPaginated(
-    pageOptionsDto: PageOptionsDto,
-  ): Promise<PageDto<UserDto>> {
-    const queryBuilder = this.userRepository.createQueryBuilder('user');
+  async findUsersPaginated(pageOptionsDto: PageOptionsDto): Promise<PageDto<UserDto>> {
+    const queryBuilder = this.userRepository.createQueryBuilder("user");
     const rawOrder = (pageOptionsDto as { order?: unknown }).order;
 
     const page = Number(pageOptionsDto.page);
     const take = Number(pageOptionsDto.take);
-    const order: 'ASC' | 'DESC' = rawOrder === SortOrder.DESC ? 'DESC' : 'ASC';
+    const order: "ASC" | "DESC" = rawOrder === SortOrder.DESC ? "DESC" : "ASC";
     const skip = (page - 1) * take;
 
-    queryBuilder.skip(skip).take(take).orderBy('user.user_id', order);
+    queryBuilder.skip(skip).take(take).orderBy("user.user_id", order);
 
     const entities = await queryBuilder.getMany();
     const itemCount = await queryBuilder.getCount();
@@ -170,7 +150,7 @@ export class UserService {
 
   async logout(user_id: number): Promise<void> {
     await this.userRepository.update(user_id, {
-      refresh_token: '',
+      refresh_token: "",
     });
   }
 }

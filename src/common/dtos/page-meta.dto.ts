@@ -1,9 +1,9 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty } from "@nestjs/swagger";
 
 export interface PageMetaOptions {
   page: number;
   take: number;
-  order?: 'ASC' | 'DESC';
+  order?: "ASC" | "DESC";
   skip: number;
 }
 

@@ -1,1 +1,1 @@
-export * from './auth-token-payload.type';
+export * from "./auth-token-payload.type";

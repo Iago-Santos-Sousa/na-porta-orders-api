@@ -1,11 +1,11 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateAddressDto } from './dto/create-address.dto';
-import { UpdateAddressDto } from './dto/update-address.dto';
-import { AddressRepository } from './repositories/address.repository';
-import { PageOptionsDto } from '../common/dtos/page-options.dto';
-import { PageMetaDto } from '../common/dtos/page-meta.dto';
-import { PageDto } from '../common/dtos/page.dto';
-import { Address } from './entities/address.entity';
+import { Injectable, NotFoundException } from "@nestjs/common";
+import { CreateAddressDto } from "./dto/create-address.dto";
+import { UpdateAddressDto } from "./dto/update-address.dto";
+import { AddressRepository } from "./repositories/address.repository";
+import { PageOptionsDto } from "@/common/dtos/page-options.dto";
+import { PageMetaDto } from "@/common/dtos/page-meta.dto";
+import { PageDto } from "@/common/dtos/page.dto";
+import { Address } from "./entities/address.entity";
 
 @Injectable()
 export class AddressService {
@@ -39,10 +39,7 @@ export class AddressService {
     return address;
   }
 
-  async update(
-    address_id: string,
-    updateAddressDto: UpdateAddressDto,
-  ): Promise<Address> {
+  async update(address_id: string, updateAddressDto: UpdateAddressDto): Promise<Address> {
     await this.findOne(address_id);
     await this.addressRepository.update({ address_id }, updateAddressDto);
     return this.findOne(address_id);

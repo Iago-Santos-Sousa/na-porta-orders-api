@@ -1,13 +1,13 @@
-import { Module } from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { UserModule } from '../user/user.module';
-import { JwtModule } from '@nestjs/jwt';
-import { AuthController } from './auth.controller';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { APP_GUARD } from '@nestjs/core';
-import { JwtAuthGuard } from './auth.guard';
-import { PassportModule } from '@nestjs/passport';
-import { JwtStrategy } from './jwt.strategy';
+import { Module } from "@nestjs/common";
+import { AuthService } from "./auth.service";
+import { UserModule } from "@/user/user.module";
+import { JwtModule } from "@nestjs/jwt";
+import { AuthController } from "./auth.controller";
+import { ConfigModule, ConfigService } from "@nestjs/config";
+import { APP_GUARD } from "@nestjs/core";
+import { JwtAuthGuard } from "./auth.guard";
+import { PassportModule } from "@nestjs/passport";
+import { JwtStrategy } from "./jwt.strategy";
 
 @Module({
   imports: [
@@ -20,8 +20,8 @@ import { JwtStrategy } from './jwt.strategy';
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
         global: true,
-        secret: config.getOrThrow('JWT_SECRET'),
-        signOptions: { expiresIn: config.getOrThrow('JWT_EXPIRES') },
+        secret: config.getOrThrow("JWT_SECRET"),
+        signOptions: { expiresIn: config.getOrThrow("JWT_EXPIRES") },
       }),
     }),
   ],

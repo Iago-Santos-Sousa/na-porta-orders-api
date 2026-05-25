@@ -8,16 +8,16 @@ import {
   ForbiddenException,
   Injectable,
   UnauthorizedException,
-} from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
-import { Reflector } from '@nestjs/core';
-import { Request } from 'express';
-import { IS_PUBLIC_KEY } from '@/common/decorators/skipAuth.decorator';
-import { UserRole } from '@/utils/enums';
-import { ROLES_KEY } from '../common/decorators/roles.decorator';
+} from "@nestjs/common";
+import { AuthGuard } from "@nestjs/passport";
+import { Reflector } from "@nestjs/core";
+import { Request } from "express";
+import { IS_PUBLIC_KEY } from "@/common/decorators/skipAuth.decorator";
+import { UserRole } from "@/utils/enums";
+import { ROLES_KEY } from "@/common/decorators/roles.decorator";
 
 @Injectable()
-export class JwtAuthGuard extends AuthGuard('jwt') implements CanActivate {
+export class JwtAuthGuard extends AuthGuard("jwt") implements CanActivate {
   constructor(private reflector: Reflector) {
     super();
   }
@@ -40,26 +40,24 @@ export class JwtAuthGuard extends AuthGuard('jwt') implements CanActivate {
 
     const token = this.extractTokenFromHeader(request);
     if (!token) {
-      throw new UnauthorizedException('access_token is required');
+      throw new UnauthorizedException("access_token is required");
     }
 
     try {
-      const requiredRoles = this.reflector.getAllAndOverride<UserRole[]>(
-        ROLES_KEY,
-        [context.getHandler(), context.getClass()],
-      );
+      const requiredRoles = this.reflector.getAllAndOverride<UserRole[]>(ROLES_KEY, [
+        context.getHandler(),
+        context.getClass(),
+      ]);
       if (!requiredRoles) {
         return true;
       }
 
       //Verifica a role do usuário
       const { user } = context.switchToHttp().getRequest();
-      const hasRolePermission = requiredRoles.some((role) =>
-        user?.roles?.includes(role),
-      );
+      const hasRolePermission = requiredRoles.some((role) => user?.roles?.includes(role));
 
       if (!hasRolePermission) {
-        throw new ForbiddenException('Insufficient permissions');
+        throw new ForbiddenException("Insufficient permissions");
       }
     } catch (error) {
       console.error(error);
@@ -73,13 +71,13 @@ export class JwtAuthGuard extends AuthGuard('jwt') implements CanActivate {
   }
 
   private extractTokenFromHeader(request: Request): string | undefined {
-    const cookieToken = (
-      request as Request & { cookies?: Record<string, string> }
-    ).cookies?.['access_token'] as string | undefined;
+    const cookieToken = (request as Request & { cookies?: Record<string, string> }).cookies?.[
+      "access_token"
+    ] as string | undefined;
 
     if (cookieToken) return cookieToken;
 
-    const [type, token] = request.headers.authorization?.split(' ') ?? [];
-    return type === 'Bearer' ? token : undefined;
+    const [type, token] = request.headers.authorization?.split(" ") ?? [];
+    return type === "Bearer" ? token : undefined;
   }
 }

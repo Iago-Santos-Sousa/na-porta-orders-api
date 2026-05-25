@@ -10,16 +10,16 @@ import {
   Patch,
   Post,
   Query,
-} from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
-import { OrdersService } from './orders.service';
-import { CreateOrderDto } from './dto/create-order.dto';
-import { UpdateOrderDto } from './dto/update-order.dto';
-import { FilterOrderDto } from './dto/filter-order.dto';
-import { OrdersDocs } from './orders.docs';
+} from "@nestjs/common";
+import { ApiTags } from "@nestjs/swagger";
+import { OrdersService } from "./orders.service";
+import { CreateOrderDto } from "./dto/create-order.dto";
+import { UpdateOrderDto } from "./dto/update-order.dto";
+import { FilterOrderDto } from "./dto/filter-order.dto";
+import { OrdersDocs } from "./orders.docs";
 
-@ApiTags('orders')
-@Controller('orders')
+@ApiTags("orders")
+@Controller("orders")
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
@@ -35,25 +35,22 @@ export class OrdersController {
     return this.ordersService.findAll(filterOrderDto);
   }
 
-  @Get(':id')
+  @Get(":id")
   @OrdersDocs.findOne()
-  findOne(@Param('id', ParseUUIDPipe) id: string) {
+  findOne(@Param("id", ParseUUIDPipe) id: string) {
     return this.ordersService.findOne(id);
   }
 
-  @Patch(':id')
+  @Patch(":id")
   @OrdersDocs.update()
-  update(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Body() updateOrderDto: UpdateOrderDto,
-  ) {
+  update(@Param("id", ParseUUIDPipe) id: string, @Body() updateOrderDto: UpdateOrderDto) {
     return this.ordersService.update(id, updateOrderDto);
   }
 
-  @Delete(':id')
+  @Delete(":id")
   @HttpCode(HttpStatus.NO_CONTENT)
   @OrdersDocs.remove()
-  remove(@Param('id', ParseUUIDPipe) id: string) {
+  remove(@Param("id", ParseUUIDPipe) id: string) {
     return this.ordersService.remove(id);
   }
 }
