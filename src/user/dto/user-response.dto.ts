@@ -3,18 +3,18 @@ import { IsOptional } from 'class-validator';
 
 export class UsersDto {
   @ApiProperty({ example: 1 })
-  user_id: number;
+  user_id!: number;
 
   @ApiProperty({ example: 'John Doe' })
-  name: string;
+  name!: string;
 
   @ApiProperty({
     example: 'john.doe@example.com',
   })
-  email: string;
+  email!: string;
 
   @ApiProperty({ example: 'user' })
-  role: string;
+  role!: string;
 
   @ApiProperty({ required: false })
   @IsOptional()
@@ -26,12 +26,12 @@ export class UsersDto {
 
 export class UserCreatedResponseDto {
   @ApiProperty({ example: 'User created successfully' })
-  message: string;
+  message!: string;
 
   @ApiProperty({
     type: PickType(UsersDto, ['user_id', 'name', 'email', 'role'] as const),
   })
-  user: Omit<UsersDto, 'created_at' | 'updated_at'>;
+  user!: Omit<UsersDto, 'created_at' | 'updated_at'>;
 }
 
 export class UserUpdatedResponseDto extends UserCreatedResponseDto {

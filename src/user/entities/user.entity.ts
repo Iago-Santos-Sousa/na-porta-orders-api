@@ -9,19 +9,19 @@ import {
 @Entity()
 export class User {
   @PrimaryGeneratedColumn({ name: 'user_id' })
-  user_id: number;
+  user_id!: number;
 
   @Column('varchar', { name: 'name', length: 150 })
-  name: string;
+  name!: string;
 
   @Column('varchar', { name: 'email', length: 100, unique: true })
-  email: string;
+  email!: string;
 
   @Column('varchar', { name: 'password', length: 50 })
-  password: string;
+  password!: string;
 
   @Column('varchar', { name: 'role', length: 20 })
-  role: string;
+  role!: string;
 
   @Column('varchar', { name: 'refresh_token', nullable: true, default: '' })
   refresh_token?: string;
@@ -49,7 +49,7 @@ export class User {
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP(6)',
   })
-  created_at: Date;
+  created_at!: Date;
 
   @UpdateDateColumn({
     name: 'updated_at',
@@ -57,5 +57,5 @@ export class User {
     default: () => 'CURRENT_TIMESTAMP(6)',
     onUpdate: 'CURRENT_TIMESTAMP(6)',
   })
-  updated_at: Date;
+  updated_at!: Date;
 }

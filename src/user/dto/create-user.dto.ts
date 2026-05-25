@@ -17,14 +17,14 @@ export class CreateUserDto {
   @IsString()
   @MinLength(3)
   @Transform(({ value }: { value: string }) => value?.trim()) // Remove whitespace
-  name: string;
+  name!: string;
 
   //Para validadores mais complexos como IsEmail, você passa primeiro as opções do validador (que podem estar vazias {}) e depois as opções gerais como a mensagem.  @ApiProperty({ description: "User E-mail", example: "jhondoe@gmail.com" })
   @ApiProperty({ description: 'User E-mail', example: 'jhon.doe@gmail.com' })
   @IsNotEmpty({ message: 'Email cannot be empty' })
   @IsEmail({}, { message: 'The provided email is not valid' })
   @Transform(({ value }: { value: string }) => value?.trim())
-  email: string;
+  email!: string;
 
   @ApiProperty({ description: 'user password', example: '123456' })
   @IsNotEmpty()
@@ -32,7 +32,7 @@ export class CreateUserDto {
   @MinLength(6)
   @MaxLength(30)
   @Transform(({ value }: { value: string }) => value?.trim())
-  password: string;
+  password!: string;
   @ApiProperty({
     description: 'user permission',
     type: 'string',
@@ -41,5 +41,5 @@ export class CreateUserDto {
   })
   @IsNotEmpty({ message: 'Role cannot be empty' })
   @IsEnum(UserRole, { message: 'Role must be user or admin' })
-  role: UserRole;
+  role!: UserRole;
 }
