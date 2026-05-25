@@ -3,7 +3,7 @@ import { Transform } from "class-transformer";
 import { ApiProperty } from "@nestjs/swagger";
 
 export class SignInDto {
-  @ApiProperty({ example: "jhondoe@gmail.com" })
+  @ApiProperty({ example: "jhon.doe@gmail.com" })
   @IsNotEmpty({ message: "Email cannot be empty" })
   @IsEmail({}, { message: "The provided email is not valid" })
   @Transform(({ value }: { value: string }) => value?.trim())
