@@ -9,11 +9,14 @@ import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserResponseDto, UsersResponseDto } from './dto/user-response.dto';
-import { PageDto, PageOptionsDto, PageMetaDto } from '@/common/dtos';
+import { PageDto } from '../common/dtos/page.dto';
+import type { PageMetaDto } from '../common/dtos/page-meta.dto';
+import { PageOptionsDto } from '../common/dtos/page-options.dto';
 import { UserDto } from './dto/user.dto';
 import { randomBytes, scrypt as _scrypt } from 'crypto';
 import { promisify } from 'util';
 import { UserRepository } from './repositories/user.repository';
+import { Order as SortOrder } from '../common/constants/order.constant';
 const scrypt = promisify(_scrypt);
 
 @Injectable()
@@ -108,10 +111,10 @@ export class UserService {
       throw new NotFoundException(`User with id ${user_id} not found`);
     }
 
-    const mergedUser = Object.assign(user, updateUserDto);
+    const mergedUser = this.userRepository.merge(user, updateUserDto);
     const updatedUser = await this.userRepository.save(mergedUser);
-    const { password, refresh_token, ...safeUser } = updatedUser;
 
+    const { password, refresh_token, ...safeUser } = updatedUser;
     return {
       user: safeUser,
     };
@@ -133,15 +136,28 @@ export class UserService {
     pageOptionsDto: PageOptionsDto,
   ): Promise<PageDto<UserDto>> {
     const queryBuilder = this.userRepository.createQueryBuilder('user');
+    const rawOrder = (pageOptionsDto as { order?: unknown }).order;
+
+    const page = Number(pageOptionsDto.page);
+    const take = Number(pageOptionsDto.take);
+    const order: 'ASC' | 'DESC' = rawOrder === SortOrder.DESC ? 'DESC' : 'ASC';
+    const skip = (page - 1) * take;
+
     queryBuilder.withDeleted();
-    queryBuilder
-      .skip(pageOptionsDto.skip)
-      .take(pageOptionsDto.take)
-      .orderBy('user.user_id', pageOptionsDto.order);
+    queryBuilder.skip(skip).take(take).orderBy('user.user_id', order);
 
     const entities = await queryBuilder.getMany();
     const itemCount = await queryBuilder.getCount();
-    const pageMetaDto = new PageMetaDto({ itemCount, pageOptionsDto });
+    const pageCount = Math.ceil(itemCount / take);
+    const pageMetaDto: PageMetaDto = {
+      page,
+      take,
+      itemCount,
+      pageCount,
+      hasPreviousPage: page > 1,
+      hasNextPage: page < pageCount,
+    };
+
     return new PageDto(
       entities.map((user) => new UserDto(user)),
       pageMetaDto,
@@ -154,13 +170,9 @@ export class UserService {
     });
   }
 
-  async logout(user_id: number): Promise<{ message: string }> {
+  async logout(user_id: number): Promise<void> {
     await this.userRepository.update(user_id, {
       refresh_token: '',
     });
-
-    return {
-      message: 'User logged out successfully',
-    };
   }
 }

@@ -6,6 +6,7 @@ import {
   Post,
   Req,
   Res,
+  SetMetadata,
   UnauthorizedException,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
@@ -14,7 +15,7 @@ import { CurrentUser } from './current-user.decorator';
 import { CurrentUserDto } from './current-user.dto';
 import { AuthService } from './auth.service';
 import { SignInDto } from './dto/signin.dto';
-import { Public } from '@/common/decorators/skipAuth.decorator';
+import { IS_PUBLIC_KEY } from '@/common/decorators/skipAuth.decorator';
 import { AuthDocs } from './auth.docs';
 
 const ACCESS_TOKEN_COOKIE_MS = 20 * 60 * 1000;
@@ -26,20 +27,20 @@ const COOKIE_BASE = {
   sameSite: 'lax' as const,
 };
 
-@ApiTags('Auth')
+@ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Public()
-  @HttpCode(HttpStatus.CREATED)
+  @SetMetadata(IS_PUBLIC_KEY, true)
+  @HttpCode(HttpStatus.OK)
   @Post('login')
   @AuthDocs.signIn()
   async signIn(
     @Body() signInDto: SignInDto,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const result = await this.authService.sigIn(
+    const result = await this.authService.signIn(
       signInDto.email,
       signInDto.password,
     );
@@ -54,26 +55,23 @@ export class AuthController {
       maxAge: REFRESH_TOKEN_COOKIE_MS,
     });
 
-    return {
-      message: 'Login realizado com sucesso',
-      user: result.payload,
-      access_token: result.access_token,
-      refresh_token: result.refresh_token,
-    };
+    return result;
   }
 
-  @Public()
-  @HttpCode(HttpStatus.CREATED)
+  @SetMetadata(IS_PUBLIC_KEY, true)
+  @HttpCode(HttpStatus.OK)
   @Post('refresh-token')
   @AuthDocs.refreshToken()
   async refreshToken(
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
-    @Body() body: { refresh_token?: string },
   ) {
+    const bodyRefreshToken = (
+      req.body as { refresh_token?: string } | undefined
+    )?.refresh_token;
     const refreshToken =
       (req.cookies as Record<string, string>)?.['refresh_token'] ??
-      body?.refresh_token;
+      bodyRefreshToken;
 
     if (!refreshToken) {
       throw new UnauthorizedException('Refresh token não encontrado');
@@ -91,24 +89,18 @@ export class AuthController {
       maxAge: REFRESH_TOKEN_COOKIE_MS,
     });
 
-    return {
-      message: 'Token renovado com sucesso',
-      user: result.payload,
-      access_token: result.access_token,
-      refresh_token: result.refresh_token,
-    };
+    return result;
   }
 
   @Post('logout')
-  @HttpCode(HttpStatus.OK)
+  @HttpCode(HttpStatus.NO_CONTENT)
   @AuthDocs.logout()
   async logout(
     @CurrentUser() user: CurrentUserDto,
     @Res({ passthrough: true }) res: Response,
-  ) {
+  ): Promise<void> {
     await this.authService.logout(user.sub);
     res.clearCookie('access_token');
     res.clearCookie('refresh_token');
-    return { message: 'Logout realizado com sucesso' };
   }
 }

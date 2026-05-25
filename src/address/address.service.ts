@@ -23,7 +23,7 @@ export class AddressService {
       take: pageOptionsDto.take,
     });
 
-    const meta = new PageMetaDto({ pageOptionsDto, itemCount });
+    const meta = new PageMetaDto(pageOptionsDto, itemCount);
     return new PageDto(data, meta);
   }
 

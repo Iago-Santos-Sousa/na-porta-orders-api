@@ -1,67 +1,42 @@
 import { applyDecorators } from '@nestjs/common';
-
 import {
   ApiBody,
-  ApiCreatedResponse,
+  ApiNoContentResponse,
   ApiOkResponse,
   ApiOperation,
 } from '@nestjs/swagger';
 
+import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { SignInDto } from './dto/signin.dto';
 import { SignInResponseDto } from './dto/signin-response.dto';
 
 export const AuthDocs = {
-  signIn: () =>
+  signIn: (): ReturnType<typeof applyDecorators> =>
     applyDecorators(
-      ApiOperation({ summary: 'Login', security: [] }),
-      ApiBody({
-        description: 'Login user',
-        type: SignInDto,
-      }),
-      ApiCreatedResponse({
-        description: 'User Login Information',
+      ApiOperation({ summary: 'Autenticar usuário', security: [] }),
+      ApiBody({ type: SignInDto }),
+      ApiOkResponse({
+        description: 'Tokens de autenticação gerados com sucesso',
         type: SignInResponseDto,
       }),
     ),
 
-  refreshToken: () =>
+  refreshToken: (): ReturnType<typeof applyDecorators> =>
     applyDecorators(
       ApiOperation({
-        summary: 'Generate new access token for user',
+        summary: 'Renovar tokens da sessão',
         security: [],
       }),
-      ApiBody({
-        description: 'refresh',
-        schema: {
-          type: 'object',
-          properties: {
-            refresh_token: {
-              type: 'string',
-              example: 'your refresh token',
-            },
-          },
-        },
-      }),
-      ApiCreatedResponse({
+      ApiBody({ type: RefreshTokenDto }),
+      ApiOkResponse({
+        description: 'Tokens renovados com sucesso',
         type: SignInResponseDto,
       }),
     ),
 
-  logout: () =>
+  logout: (): ReturnType<typeof applyDecorators> =>
     applyDecorators(
-      ApiOperation({
-        summary: 'Logout session user',
-      }),
-      ApiOkResponse({
-        schema: {
-          type: 'object',
-          properties: {
-            message: {
-              type: 'string',
-              example: 'User logged out successfully',
-            },
-          },
-        },
-      }),
+      ApiOperation({ summary: 'Encerrar sessão do usuário autenticado' }),
+      ApiNoContentResponse({ description: 'Sessão encerrada com sucesso' }),
     ),
 };

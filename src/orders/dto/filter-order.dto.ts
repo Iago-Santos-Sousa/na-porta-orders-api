@@ -8,6 +8,7 @@ import {
   Matches,
 } from 'class-validator';
 import { PageOptionsDto } from '../../common/dtos/page-options.dto';
+import { API_DATE_REGEX } from '../../common/utils/api-date.util';
 import { OrderStatus } from '../../utils/enums';
 
 export class FilterOrderDto extends PageOptionsDto {
@@ -20,20 +21,20 @@ export class FilterOrderDto extends PageOptionsDto {
 
   @ApiPropertyOptional({
     example: '22/05/2026',
-    description: 'Data inicial no formato DD/MM/YYYY (inclusive, 00:00:00)',
+    description: 'Data inicial',
   })
-  @Matches(/^\d{2}\/\d{2}\/\d{4}$/, {
-    message: 'start_date must be in DD/MM/YYYY format (e.g. 22/05/2026)',
+  @Matches(API_DATE_REGEX, {
+    message: 'start_date must use the format DD/MM/YYYY',
   })
   @IsOptional()
   start_date?: string;
 
   @ApiPropertyOptional({
-    example: '31/12/2026',
-    description: 'Data final no formato DD/MM/YYYY (inclusive, 23:59:59)',
+    example: '24/05/2026',
+    description: 'Data final',
   })
-  @Matches(/^\d{2}\/\d{2}\/\d{4}$/, {
-    message: 'end_date must be in DD/MM/YYYY format (e.g. 31/12/2026)',
+  @Matches(API_DATE_REGEX, {
+    message: 'end_date must use the format DD/MM/YYYY',
   })
   @IsOptional()
   end_date?: string;

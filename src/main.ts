@@ -35,9 +35,10 @@ async function bootstrap() {
     .setTitle('Na porta - API de pedidos')
     .setDescription('API para gerenciamento de pedidos.')
     .setVersion('1.0')
-    .addTag('Auth', 'Autenticação e gerenciamento de sessão')
-    .addTag('User', 'Gerenciamento de usuários')
-    .addTag('Orders', 'Gerenciamento de pedidos')
+    .addTag('auth', 'Autenticação e gerenciamento de sessão')
+    .addTag('users', 'Gerenciamento de usuários')
+    .addTag('orders', 'Gerenciamento de pedidos')
+    .addTag('addresses', 'Gerenciamento de endereços')
     .addBearerAuth({
       type: 'http',
       scheme: 'bearer',

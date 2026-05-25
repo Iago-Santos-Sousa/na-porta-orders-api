@@ -16,16 +16,17 @@ import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { Public } from '@/common/decorators/skipAuth.decorator';
-import { Roles } from '@/common/decorators/roles.decorator';
-import { UserRole } from '@/utils/enums';
-import { ApiPaginatedResponse } from '@/common/decorators/api-paginated-response.decorator';
+import { Public } from '../common/decorators/skipAuth.decorator';
+import { Roles } from '../common/decorators/roles.decorator';
+import { UserRole } from '../utils/enums';
+import { ApiPaginatedResponse } from '../common/decorators/api-paginated-response.decorator';
 import { UserDto } from './dto/user.dto';
-import { PageDto, PageOptionsDto } from '@/common/dtos';
+import { PageDto } from '../common/dtos/page.dto';
+import { PageOptionsDto } from '../common/dtos/page-options.dto';
 import { UserDocs } from './user.docs';
 
-@ApiTags('User')
-@Controller('user')
+@ApiTags('users')
+@Controller('users')
 @ApiBearerAuth()
 export class UserController {
   constructor(private readonly userService: UserService) {}
@@ -36,16 +37,14 @@ export class UserController {
   @UserDocs.create()
   async create(@Body() createUserDto: CreateUserDto) {
     const data = await this.userService.create(createUserDto);
-    return {
-      message: 'User created successfully',
-      data: data.user,
-    };
+    return data.user;
   }
 
   @UseInterceptors(ClassSerializerInterceptor)
-  @Get('paginate')
+  @Get()
   @Roles(UserRole.ADMIN)
   @ApiPaginatedResponse(UserDto)
+  @UserDocs.findAll()
   async findUsersPaginated(
     @Query() pageOptionsDto: PageOptionsDto,
   ): Promise<PageDto<UserDto>> {
@@ -54,24 +53,18 @@ export class UserController {
 
   @UseInterceptors(ClassSerializerInterceptor)
   @Roles(UserRole.ADMIN)
-  @Get()
-  @UserDocs.getAll()
+  @Get('all')
+  @UserDocs.findAllRaw()
   async findAll() {
     const data = await this.userService.findAll();
-    return {
-      message: 'Users retrieved successfully',
-      data: data.users,
-    };
+    return data.users;
   }
 
   @Get(':id')
-  @UserDocs.getById()
+  @UserDocs.findOne()
   async findOne(@Param('id', ParseIntPipe) id: number) {
     const data = await this.userService.findOne(id);
-    return {
-      message: 'User found',
-      data: data.user,
-    };
+    return data.user;
   }
 
   @Patch(':id')
@@ -82,20 +75,14 @@ export class UserController {
     @Body() updateUserDto: UpdateUserDto,
   ) {
     const data = await this.userService.update(id, updateUserDto);
-    return {
-      message: 'User updated successfully',
-      data: data.user,
-    };
+    return data.user;
   }
 
   @Roles(UserRole.ADMIN)
   @Delete(':id')
-  @HttpCode(200)
+  @HttpCode(204)
   @UserDocs.remove()
-  async remove(@Param('id', ParseIntPipe) id: number) {
+  async remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
     await this.userService.remove(id);
-    return {
-      message: `User with ID ${id} was successfully removed`,
-    };
   }
 }

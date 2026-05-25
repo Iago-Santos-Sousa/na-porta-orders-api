@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import type { AuthUserPayload } from '@/common/types';
 
 export class SignInResponseDto {
   @ApiProperty({
@@ -21,10 +22,5 @@ export class SignInResponseDto {
       email: 'jhon.doe@gmail.com',
     },
   })
-  payload!: {
-    sub: number;
-    username: string;
-    email: string;
-    roles: string[];
-  };
+  payload!: AuthUserPayload;
 }

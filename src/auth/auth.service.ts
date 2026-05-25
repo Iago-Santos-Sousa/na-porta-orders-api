@@ -1,18 +1,19 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { UserService } from '@/user/user.service';
+import { UserService } from '../user/user.service';
 import { JwtService } from '@nestjs/jwt';
-import { scrypt as _scrypt } from 'crypto';
-import { promisify } from 'util';
 import { SignInResponseDto } from './dto/signin-response.dto';
-import { UserPayload } from '@/common/types/user-payload.type';
+import type {
+  AuthTokenPayload,
+  AuthUserPayload,
+} from '../common/types/auth-token-payload.type';
 import {
-  buildUserPayload,
-  hashToken,
-  signToken,
-  verifyTokenHash,
+  buildAuthUserPayload,
+  buildTokenPayload,
+  compareSaltedHash,
+  createSaltedHash,
 } from './auth.utils';
-
-const scrypt = promisify(_scrypt);
 
 @Injectable()
 export class AuthService {
@@ -21,73 +22,101 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async sigIn(email: string, pass: string): Promise<SignInResponseDto> {
+  private signTokens(payload: AuthUserPayload) {
+    const accessTokenExpiresIn = (process.env.JWT_EXPIRES ??
+      '20m') as `${number}${'s' | 'm' | 'h' | 'd'}`;
+
+    const refreshTokenExpiresIn = (process.env.JWT_REFRESH_EXPIRES ??
+      '7d') as `${number}${'s' | 'm' | 'h' | 'd'}`;
+
+    const accessToken = this.jwtService.sign(
+      buildTokenPayload(payload, 'access_token'),
+      {
+        expiresIn: accessTokenExpiresIn,
+        secret: process.env.JWT_SECRET,
+      },
+    );
+
+    const refreshToken = this.jwtService.sign(
+      buildTokenPayload(payload, 'refresh_token'),
+      {
+        expiresIn: refreshTokenExpiresIn,
+        secret: process.env.JWT_REFRESH_SECRET,
+      },
+    );
+
+    return {
+      accessToken,
+      refreshToken,
+    };
+  }
+
+  private async persistRefreshToken(
+    userId: number,
+    refreshToken: string,
+  ): Promise<void> {
+    const hashedRefreshToken = await createSaltedHash(refreshToken);
+    await this.userService.updateRefreshToken(userId, hashedRefreshToken);
+  }
+
+  async signIn(email: string, pass: string): Promise<SignInResponseDto> {
     const user = await this.userService.findByEmail(email);
     if (!user) throw new UnauthorizedException();
 
-    const [salt, storedHashPassword] = user.password.split('.');
-    const hash = (await scrypt(pass, salt, 32)) as Buffer;
-    if (storedHashPassword !== hash.toString('hex')) {
+    const passwordMatches = await compareSaltedHash(pass, user.password);
+    if (!passwordMatches) {
       throw new UnauthorizedException();
     }
 
-    const payload = buildUserPayload(user);
-    const access_token = signToken(this.jwtService, payload, 'access_token');
-    const refresh_token = signToken(this.jwtService, payload, 'refresh_token');
+    const payload = buildAuthUserPayload(user);
+    const { accessToken, refreshToken } = this.signTokens(payload);
 
-    await this.userService.updateRefreshToken(
-      user.user_id,
-      await hashToken(refresh_token),
-    );
+    await this.persistRefreshToken(user.user_id, refreshToken);
 
-    return { access_token, refresh_token, payload };
+    return {
+      access_token: accessToken,
+      refresh_token: refreshToken,
+      payload,
+    };
   }
 
   async refreshToken(refresh_token: string): Promise<SignInResponseDto> {
     try {
-      const decoded = this.jwtService.verify(refresh_token, {
+      const decoded = this.jwtService.verify<AuthTokenPayload>(refresh_token, {
         secret: process.env.JWT_REFRESH_SECRET,
-      }) as UserPayload;
+      });
 
-      if (!decoded || decoded.type !== 'refresh_token') {
-        throw new UnauthorizedException();
-      }
+      if (!decoded) throw new UnauthorizedException();
+      if (decoded.type !== 'refresh_token') throw new UnauthorizedException();
 
       const user = await this.userService.findById(decoded.sub);
       if (!user || !user.refresh_token) throw new UnauthorizedException();
 
-      const isValid = await verifyTokenHash(refresh_token, user.refresh_token);
-      if (!isValid) throw new UnauthorizedException();
+      const refreshTokenMatches = await compareSaltedHash(
+        refresh_token,
+        user.refresh_token,
+      );
+      if (!refreshTokenMatches) {
+        throw new UnauthorizedException();
+      }
 
-      const newPayload = buildUserPayload(user);
-      const newAccessToken = signToken(
-        this.jwtService,
-        newPayload,
-        'access_token',
-      );
-      const newRefreshToken = signToken(
-        this.jwtService,
-        newPayload,
-        'refresh_token',
-      );
+      const newPayload = buildAuthUserPayload(user);
+      const { accessToken, refreshToken: newRefreshToken } =
+        this.signTokens(newPayload);
 
-      await this.userService.updateRefreshToken(
-        user.user_id,
-        await hashToken(newRefreshToken),
-      );
+      await this.persistRefreshToken(user.user_id, newRefreshToken);
 
       return {
-        access_token: newAccessToken,
+        access_token: accessToken,
         refresh_token: newRefreshToken,
-        payload: { ...newPayload },
+        payload: newPayload,
       };
-    } catch (error) {
-      if (error instanceof UnauthorizedException) throw error;
+    } catch {
       throw new UnauthorizedException();
     }
   }
 
-  async logout(user_id: number) {
-    return this.userService.logout(user_id);
+  async logout(user_id: number): Promise<void> {
+    await this.userService.logout(user_id);
   }
 }

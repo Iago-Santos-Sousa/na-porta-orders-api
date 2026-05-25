@@ -1,10 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { DataSource, Repository } from 'typeorm';
-import { endOfDay, parse, startOfDay } from 'date-fns';
 import { Order } from '../entities/order.entity';
-import { FilterOrderDto } from '../dto/filter-order.dto';
 import { PageMetaDto } from '../../common/dtos/page-meta.dto';
 import { PageDto } from '../../common/dtos/page.dto';
+import { OrderQueryFilters } from '../types/order-query-filters.type';
 
 @Injectable()
 export class OrderRepository extends Repository<Order> {
@@ -12,7 +11,7 @@ export class OrderRepository extends Repository<Order> {
     super(Order, dataSource.createEntityManager());
   }
 
-  async findWithFilters(dto: FilterOrderDto): Promise<PageDto<Order>> {
+  async findWithFilters(dto: OrderQueryFilters): Promise<PageDto<Order>> {
     const qb = this.createQueryBuilder('order')
       .leftJoinAndSelect('order.delivery_address', 'delivery_address')
       .leftJoinAndSelect('order.items', 'items')
@@ -30,13 +29,13 @@ export class OrderRepository extends Repository<Order> {
 
     if (dto.start_date) {
       qb.andWhere('order.created_at >= :start_date', {
-        start_date: startOfDay(parse(dto.start_date, 'dd/MM/yyyy', new Date())),
+        start_date: dto.start_date,
       });
     }
 
     if (dto.end_date) {
       qb.andWhere('order.created_at <= :end_date', {
-        end_date: endOfDay(parse(dto.end_date, 'dd/MM/yyyy', new Date())),
+        end_date: dto.end_date,
       });
     }
 
@@ -44,12 +43,7 @@ export class OrderRepository extends Repository<Order> {
     qb.orderBy('order.created_at', order).skip(dto.skip).take(dto.take);
 
     const [data, itemCount] = await qb.getManyAndCount();
-
-    const meta = new PageMetaDto({
-      pageOptionsDto: dto,
-      itemCount,
-    });
-
+    const meta = new PageMetaDto(dto, itemCount);
     return new PageDto(data, meta);
   }
 }

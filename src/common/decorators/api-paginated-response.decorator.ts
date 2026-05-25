@@ -5,14 +5,13 @@ import {
   ApiOperation,
   getSchemaPath,
 } from '@nestjs/swagger';
-import { PageDto } from '@/common/dtos';
-import { UserDto } from '@/user/dto/user.dto';
+import { PageDto } from '../dtos/page.dto';
 
 export const ApiPaginatedResponse = <TModel extends Type<any>>(
   model: TModel,
 ) => {
   return applyDecorators(
-    ApiExtraModels(PageDto, UserDto),
+    ApiExtraModels(PageDto, model),
     ApiOperation({ summary: 'List users by pagination' }),
     ApiOkResponse({
       description: 'Successfully received model list',

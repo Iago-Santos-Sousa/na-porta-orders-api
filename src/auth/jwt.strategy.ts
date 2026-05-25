@@ -4,7 +4,14 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Request } from 'express';
-import { UserPayload } from '@/common/types/user-payload.type';
+
+interface TUserPayload {
+  sub: number;
+  username: string;
+  email: string;
+  roles: string[];
+  type?: string;
+}
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -27,7 +34,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(payload: UserPayload) {
+  async validate(payload: TUserPayload) {
     if (payload.type !== 'access_token') {
       throw new UnauthorizedException('Invalid token type');
     }

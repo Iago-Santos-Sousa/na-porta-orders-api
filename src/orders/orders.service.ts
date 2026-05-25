@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -12,6 +13,11 @@ import { AddressRepository } from '../address/repositories/address.repository';
 import { Order } from './entities/order.entity';
 import { OrderItem } from './entities/order-item.entity';
 import { PageDto } from '../common/dtos/page.dto';
+import {
+  parseApiEndDate,
+  parseApiStartDate,
+} from '../common/utils/api-date.util';
+import { OrderQueryFilters } from './types/order-query-filters.type';
 
 @Injectable()
 export class OrdersService {
@@ -20,6 +26,31 @@ export class OrdersService {
     private readonly addressRepository: AddressRepository,
     private readonly dataSource: DataSource,
   ) {}
+
+  private normalizeFilters(filterOrderDto: FilterOrderDto): OrderQueryFilters {
+    const startDate = filterOrderDto.start_date
+      ? parseApiStartDate(filterOrderDto.start_date)
+      : undefined;
+
+    const endDate = filterOrderDto.end_date
+      ? parseApiEndDate(filterOrderDto.end_date)
+      : undefined;
+
+    const skip = (filterOrderDto.page - 1) * filterOrderDto.take;
+
+    if (startDate && endDate && startDate > endDate) {
+      throw new BadRequestException(
+        'start_date must be before or equal to end_date',
+      );
+    }
+
+    return {
+      ...filterOrderDto,
+      start_date: startDate,
+      end_date: endDate,
+      skip,
+    };
+  }
 
   async create(createOrderDto: CreateOrderDto): Promise<Order> {
     const { items, delivery_address_id, ...orderData } = createOrderDto;
@@ -42,14 +73,14 @@ export class OrdersService {
 
         return manager.save(Order, order);
       });
-    } catch (error) {
-      if (error instanceof NotFoundException) throw error;
+    } catch {
       throw new InternalServerErrorException('Failed to create order');
     }
   }
 
   async findAll(filterOrderDto: FilterOrderDto): Promise<PageDto<Order>> {
-    return this.orderRepository.findWithFilters(filterOrderDto);
+    const normalizedFilters = this.normalizeFilters(filterOrderDto);
+    return this.orderRepository.findWithFilters(normalizedFilters);
   }
 
   async findOne(order_id: string): Promise<Order> {
@@ -109,8 +140,7 @@ export class OrdersService {
 
         return this.findOne(order_id);
       });
-    } catch (error) {
-      if (error instanceof NotFoundException) throw error;
+    } catch {
       throw new InternalServerErrorException('Failed to update order');
     }
   }
