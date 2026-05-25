@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -15,6 +16,8 @@ import { OrderItem } from "./entities/order-item.entity";
 import { PageDto } from "@/common/dtos/page.dto";
 import { parseApiEndDate, parseApiStartDate } from "@/common/utils/api-date.util";
 import { OrderQueryFilters } from "./types/order-query-filters.type";
+import { CurrentUserDto } from "@/auth/dto/current-user.dto";
+import { UserRole } from "@/utils/enums";
 
 @Injectable()
 export class OrdersService {
@@ -44,7 +47,15 @@ export class OrdersService {
     };
   }
 
-  async create(createOrderDto: CreateOrderDto): Promise<Order> {
+  private assertCanUpdateOrder(order: Order, currentUser: CurrentUserDto): void {
+    const isAdmin = currentUser.roles.includes(UserRole.ADMIN);
+    const isOwner = order.created_by_user_id === currentUser.sub;
+    if (!isAdmin && !isOwner) {
+      throw new ForbiddenException("Você não tem permissão para atualizar este pedido.");
+    }
+  }
+
+  async create(createOrderDto: CreateOrderDto, currentUser: CurrentUserDto): Promise<Order> {
     const { items, delivery_address_id, ...orderData } = createOrderDto;
 
     const address = await this.addressRepository.findOne({
@@ -60,6 +71,7 @@ export class OrdersService {
         const order = manager.create(Order, {
           ...orderData,
           delivery_address_id,
+          created_by_user_id: currentUser.sub,
           items: items.map((item) => manager.create(OrderItem, item)),
         });
 
@@ -89,8 +101,13 @@ export class OrdersService {
     return order;
   }
 
-  async update(order_id: string, updateOrderDto: UpdateOrderDto): Promise<Order> {
-    await this.findOne(order_id);
+  async update(
+    order_id: string,
+    updateOrderDto: UpdateOrderDto,
+    currentUser: CurrentUserDto,
+  ): Promise<Order> {
+    const existingOrder = await this.findOne(order_id);
+    this.assertCanUpdateOrder(existingOrder, currentUser);
 
     const { items, delivery_address_id, ...orderData } = updateOrderDto;
 

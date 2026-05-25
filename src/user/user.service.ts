@@ -38,7 +38,6 @@ export class UserService {
       });
 
       const savedUser = await this.userRepository.save(createdUser);
-
       return new UserResponseDto(savedUser);
     } catch (error) {
       console.error(error);
@@ -63,7 +62,6 @@ export class UserService {
 
     const { password, refresh_token, reset_token, reset_token_expiry, ...safeUser } = user;
     const userDto = new UserDto(safeUser);
-
     return {
       message: "Usuário encontrado",
       user: userDto,
@@ -93,7 +91,6 @@ export class UserService {
 
     const mergedUser = this.userRepository.merge(user, updateUserDto);
     const updatedUser = await this.userRepository.save(mergedUser);
-
     const { password, refresh_token, ...safeUser } = updatedUser;
     return {
       user: safeUser,

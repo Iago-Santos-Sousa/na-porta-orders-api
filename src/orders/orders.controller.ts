@@ -17,6 +17,8 @@ import { CreateOrderDto } from "./dto/create-order.dto";
 import { UpdateOrderDto } from "./dto/update-order.dto";
 import { FilterOrderDto } from "./dto/filter-order.dto";
 import { OrdersDocs } from "./orders.docs";
+import { CurrentUser } from "@/auth/current-user.decorator";
+import { CurrentUserDto } from "@/auth/dto/current-user.dto";
 
 @ApiTags("orders")
 @Controller("orders")
@@ -25,8 +27,8 @@ export class OrdersController {
 
   @Post()
   @OrdersDocs.create()
-  create(@Body() createOrderDto: CreateOrderDto) {
-    return this.ordersService.create(createOrderDto);
+  create(@Body() createOrderDto: CreateOrderDto, @CurrentUser() currentUser: CurrentUserDto) {
+    return this.ordersService.create(createOrderDto, currentUser);
   }
 
   @Get()
@@ -43,8 +45,12 @@ export class OrdersController {
 
   @Patch(":id")
   @OrdersDocs.update()
-  update(@Param("id", ParseUUIDPipe) id: string, @Body() updateOrderDto: UpdateOrderDto) {
-    return this.ordersService.update(id, updateOrderDto);
+  update(
+    @Param("id", ParseUUIDPipe) id: string,
+    @Body() updateOrderDto: UpdateOrderDto,
+    @CurrentUser() currentUser: CurrentUserDto,
+  ) {
+    return this.ordersService.update(id, updateOrderDto, currentUser);
   }
 
   @Delete(":id")

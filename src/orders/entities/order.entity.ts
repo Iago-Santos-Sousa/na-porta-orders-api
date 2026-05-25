@@ -10,9 +10,12 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
+import { ApiHideProperty } from "@nestjs/swagger";
+import { Exclude } from "class-transformer";
 import { Address } from "@/address/entities/address.entity";
 import { OrderItem } from "./order-item.entity";
 import { OrderStatus } from "@/utils/enums";
+import { User } from "@/user/entities/user.entity";
 
 @Entity("orders")
 export class Order {
@@ -50,6 +53,17 @@ export class Order {
   @Column({ name: "delivery_address_id" })
   delivery_address_id!: string;
 
+  @ManyToOne(() => User, { nullable: false })
+  @JoinColumn({ name: "created_by_user_id" })
+  @ApiHideProperty()
+  @Exclude({ toPlainOnly: true })
+  created_by_user!: User;
+
+  @Column({ name: "created_by_user_id", type: "int" })
+  @ApiHideProperty()
+  @Exclude({ toPlainOnly: true })
+  created_by_user_id!: number;
+
   @OneToMany(() => OrderItem, (item) => item.order, {
     cascade: true,
     eager: true,
@@ -72,5 +86,7 @@ export class Order {
   updated_at!: Date;
 
   @DeleteDateColumn({ name: "deleted_at", type: "timestamp", nullable: true })
+  @ApiHideProperty()
+  @Exclude({ toPlainOnly: true })
   deleted_at?: Date;
 }
