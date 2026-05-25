@@ -11,13 +11,13 @@ export class User {
   @PrimaryGeneratedColumn({ name: 'user_id' })
   user_id: number;
 
-  @Column('varchar', { name: 'name', length: 255 })
+  @Column('varchar', { name: 'name', length: 150 })
   name: string;
 
   @Column('varchar', { name: 'email', length: 100, unique: true })
   email: string;
 
-  @Column('varchar', { name: 'password', length: 255 })
+  @Column('varchar', { name: 'password', length: 50 })
   password: string;
 
   @Column('varchar', { name: 'role', length: 20 })
