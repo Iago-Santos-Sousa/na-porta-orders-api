@@ -27,6 +27,7 @@ export class JwtAuthGuard extends AuthGuard("jwt") implements CanActivate {
       context.getHandler(),
       context.getClass(),
     ]);
+
     if (isPublic) {
       return true;
     }
@@ -76,7 +77,6 @@ export class JwtAuthGuard extends AuthGuard("jwt") implements CanActivate {
     ] as string | undefined;
 
     if (cookieToken) return cookieToken;
-
     const [type, token] = request.headers.authorization?.split(" ") ?? [];
     return type === "Bearer" ? token : undefined;
   }

@@ -17,13 +17,13 @@ export class User {
   @Column("varchar", { name: "email", length: 100, unique: true })
   email!: string;
 
-  @Column("varchar", { name: "password", length: 50 })
+  @Column("varchar", { name: "password", length: 150 })
   password!: string;
 
   @Column("varchar", { name: "role", length: 20 })
   role!: string;
 
-  @Column("varchar", { name: "refresh_token", nullable: true, default: "" })
+  @Column("varchar", { name: "refresh_token", nullable: true, default: null, length: 255 })
   refresh_token?: string;
 
   @Column("varchar", {
