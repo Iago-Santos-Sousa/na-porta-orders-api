@@ -17,9 +17,12 @@ import { CreateAddressDto } from './dto/create-address.dto';
 import { UpdateAddressDto } from './dto/update-address.dto';
 import { PageOptionsDto } from '../common/dtos/page-options.dto';
 import { AddressDocs } from './address.docs';
+import { Roles } from '../common/decorators/roles.decorator';
+import { UserRole } from '../utils/enums';
 
 @ApiTags('addresses')
 @Controller('addresses')
+@Roles(UserRole.ADMIN)
 export class AddressController {
   constructor(private readonly addressService: AddressService) {}
 

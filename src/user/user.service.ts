@@ -95,7 +95,6 @@ export class UserService {
   async findByEmail(email: string): Promise<User | null> {
     return this.userRepository.findOne({
       where: { email },
-      withDeleted: true, // Incluir usuários soft-deleted
     });
   }
 
@@ -143,7 +142,6 @@ export class UserService {
     const order: 'ASC' | 'DESC' = rawOrder === SortOrder.DESC ? 'DESC' : 'ASC';
     const skip = (page - 1) * take;
 
-    queryBuilder.withDeleted();
     queryBuilder.skip(skip).take(take).orderBy('user.user_id', order);
 
     const entities = await queryBuilder.getMany();

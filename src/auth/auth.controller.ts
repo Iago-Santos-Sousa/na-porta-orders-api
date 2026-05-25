@@ -6,7 +6,6 @@ import {
   Post,
   Req,
   Res,
-  SetMetadata,
   UnauthorizedException,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
@@ -15,7 +14,7 @@ import { CurrentUser } from './current-user.decorator';
 import { CurrentUserDto } from './current-user.dto';
 import { AuthService } from './auth.service';
 import { SignInDto } from './dto/signin.dto';
-import { IS_PUBLIC_KEY } from '@/common/decorators/skipAuth.decorator';
+import { Public } from '../common/decorators/skipAuth.decorator';
 import { AuthDocs } from './auth.docs';
 
 const ACCESS_TOKEN_COOKIE_MS = 20 * 60 * 1000;
@@ -32,7 +31,7 @@ const COOKIE_BASE = {
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @SetMetadata(IS_PUBLIC_KEY, true)
+  @Public()
   @HttpCode(HttpStatus.OK)
   @Post('login')
   @AuthDocs.signIn()
@@ -58,7 +57,7 @@ export class AuthController {
     return result;
   }
 
-  @SetMetadata(IS_PUBLIC_KEY, true)
+  @Public()
   @HttpCode(HttpStatus.OK)
   @Post('refresh-token')
   @AuthDocs.refreshToken()
