@@ -13,7 +13,5 @@ ENV NODE_ENV=production
 COPY package*.json ./
 RUN npm ci --omit=dev
 COPY --from=build /app/dist ./dist
-COPY --from=build /app/data-source.js ./data-source.js
-RUN mkdir -p uploads/invoices
-EXPOSE 3001
-CMD ["npm", "run", "start:prod"]
+EXPOSE 8080
+CMD ["sh", "-c", "npm run db:bootstrap:prod && npm run start:prod"]

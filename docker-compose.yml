@@ -1,19 +1,18 @@
-version: '3.9'
 services:
   postgres:
     image: postgres:16-alpine
     container_name: na-porta-orders-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres123
-      POSTGRES_DB: na_porta_orders
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
       - '5432:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U postgres -d na_porta_orders || exit 1']
+      test: ['CMD-SHELL', 'pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB || exit 1']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -21,26 +20,30 @@ services:
   api:
     container_name: na-porta-orders-api
     build:
-      context: ./take-home-api
+      context: .
       dockerfile: Dockerfile
     restart: unless-stopped
     ports:
-      - '8080:8080'
+      - '${APP_PORT:-8080}:8080'
     environment:
-      NODE_ENV: production
-      APP_PORT: 8080
+      NODE_ENV: ${NODE_ENV:-production}
+      APP_PORT: ${APP_PORT:-8080}
       DB_HOST: postgres
       DB_PORT: 5432
-      DB_USER: postgres
-      DB_PASSWORD: postgres123
-      DB_NAME: na_porta_orders
-      DB_SCHEMA: na_porta_orders
-      DB_SYNCHRONIZE: 'false'
-      JWT_SECRET: your-super-secret-jwt-key-change-in-production
-      JWT_REFRESH_SECRET: your-super-secret-refresh-key-change-in-production
-      JWT_EXPIRES: 30m
-      JWT_REFRESH_EXPIRES: 45m
-      CORS_ORIGIN: http://localhost:3000
+      DB_USER: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      DB_NAME: ${POSTGRES_DB}
+      DB_CONNECTION_LIMIT: ${DB_CONNECTION_LIMIT:-10}
+      DB_SYNCHRONIZE: ${DB_SYNCHRONIZE:-false}
+      DB_SSL: ${DB_SSL:-false}
+      DB_SEED_DEMO: ${DB_SEED_DEMO:-true}
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
+      JWT_EXPIRES: ${JWT_EXPIRES:-45m}
+      JWT_REFRESH_EXPIRES: ${JWT_REFRESH_EXPIRES:-7d}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3000}
     depends_on:
       postgres:
         condition: service_healthy
