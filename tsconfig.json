@@ -1,7 +1,9 @@
 {
   "compilerOptions": {
+    "target": "ES2022",
     "module": "nodenext",
     "moduleResolution": "nodenext",
+    "lib": ["ES2022"],
     "resolvePackageJsonExports": true,
     "esModuleInterop": true,
     "isolatedModules": true,
@@ -10,7 +12,6 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
-    "target": "ES2023",
     "strict": true,
     "sourceMap": true,
     "outDir": "./dist",
