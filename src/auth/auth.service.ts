@@ -64,6 +64,7 @@ export class AuthService {
     if (!user) throw new UnauthorizedException();
 
     const passwordMatches = await compareSaltedHash(pass, user.password);
+
     if (!passwordMatches) {
       throw new UnauthorizedException();
     }
@@ -96,11 +97,13 @@ export class AuthService {
         refresh_token,
         user.refresh_token,
       );
+
       if (!refreshTokenMatches) {
         throw new UnauthorizedException();
       }
 
       const newPayload = buildAuthUserPayload(user);
+
       const { accessToken, refreshToken: newRefreshToken } =
         this.signTokens(newPayload);
 

@@ -69,6 +69,7 @@ export class AuthController {
     const bodyRefreshToken = (
       req.body as { refresh_token?: string } | undefined
     )?.refresh_token;
+
     const refreshToken =
       (req.cookies as Record<string, string>)?.['refresh_token'] ??
       bodyRefreshToken;
