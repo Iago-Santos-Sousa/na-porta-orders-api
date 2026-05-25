@@ -1,0 +1,12 @@
+node_modules
+dist
+.env*
+.git
+.gitignore
+README.md
+**/*.spec.ts
+**/*.test.ts
+coverage
+uploads
+*.log
+npm-debug.log*
