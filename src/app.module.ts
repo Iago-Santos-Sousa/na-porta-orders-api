@@ -9,6 +9,8 @@ import { ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
+import { OrdersModule } from './orders/orders.module';
+import { AddressModule } from './address/address.module';
 import AppDataSource from '../data-source';
 
 @Module({
@@ -21,6 +23,8 @@ import AppDataSource from '../data-source';
     TypeOrmModule.forRoot(AppDataSource.options),
     AuthModule,
     UserModule,
+    OrdersModule,
+    AddressModule,
   ],
   controllers: [AppController],
   providers: [
