@@ -13,7 +13,7 @@ import {
   buildTokenPayload,
   compareSaltedHash,
   createSaltedHash,
-} from './auth.utils';
+} from '../utils/auth.utils';
 
 @Injectable()
 export class AuthService {
@@ -71,7 +71,6 @@ export class AuthService {
 
     const payload = buildAuthUserPayload(user);
     const { accessToken, refreshToken } = this.signTokens(payload);
-
     await this.persistRefreshToken(user.user_id, refreshToken);
 
     return {
