@@ -6,15 +6,12 @@ import { Address } from "./address/entities/address.entity";
 import { Order } from "./orders/entities/order.entity";
 import { OrderItem } from "./orders/entities/order-item.entity";
 import { SwaggerModule, DocumentBuilder, SwaggerDocumentOptions } from "@nestjs/swagger";
-import cookieParser from "cookie-parser";
 import helmet from "helmet";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.use(helmet());
-
-  app.use(cookieParser());
 
   app.useGlobalPipes(
     new ValidationPipe({
