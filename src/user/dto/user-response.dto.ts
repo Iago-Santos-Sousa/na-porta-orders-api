@@ -25,7 +25,7 @@ export class UsersDto {
 }
 
 export class UserCreatedResponseDto {
-  @ApiProperty({ example: "User created successfully" })
+  @ApiProperty({ example: "Usuário criado com sucesso" })
   message!: string;
 
   @ApiProperty({
@@ -35,12 +35,12 @@ export class UserCreatedResponseDto {
 }
 
 export class UserUpdatedResponseDto extends UserCreatedResponseDto {
-  @ApiProperty({ example: "User updated" })
-  message: string = "User updated";
+  @ApiProperty({ example: "Usuário atualizado com sucesso" })
+  message: string = "Usuário atualizado com sucesso";
 }
 
 export class UserResponseDto {
-  @ApiProperty({ example: "User found" })
+  @ApiProperty({ example: "Usuário encontrado" })
   message?: string;
 
   @ApiProperty({
@@ -61,7 +61,7 @@ export class UserResponseDto {
 }
 
 export class UsersResponseDto {
-  @ApiProperty({ example: "Users retrieved successfully" })
+  @ApiProperty({ example: "Usuários recuperados com sucesso" })
   message?: string;
 
   @ApiProperty({

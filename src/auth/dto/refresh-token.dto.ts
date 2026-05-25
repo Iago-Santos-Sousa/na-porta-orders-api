@@ -3,8 +3,8 @@ import { IsOptional, IsString } from "class-validator";
 
 export class RefreshTokenDto {
   @ApiPropertyOptional({
-    example: "your refresh token",
-    description: "Refresh token enviado no body quando o cookie nao estiver presente",
+    example: "Seu refresh token aqui",
+    description: "Refresh token enviado no body.",
   })
   @IsOptional()
   @IsString()

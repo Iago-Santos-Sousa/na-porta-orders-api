@@ -20,25 +20,25 @@ export class CreateUserDto {
   name!: string;
 
   @ApiProperty({ description: "User E-mail", example: "jhon.doe@gmail.com" })
-  @IsNotEmpty({ message: "Email cannot be empty" })
-  @IsEmail({}, { message: "The provided email is not valid" })
+  @IsNotEmpty({ message: "Email não pode estar vazio." })
+  @IsEmail({}, { message: "O email fornecido não é válido." })
   @Transform(({ value }: { value: string }) => value?.trim())
   email!: string;
 
   @ApiProperty({ description: "user password", example: "123456" })
-  @IsNotEmpty()
-  @IsString()
-  @MinLength(6)
-  @MaxLength(50)
+  @IsNotEmpty({ message: "Senha não pode estar vazia." })
+  @IsString({ message: "Senha deve ser uma string." })
+  @MinLength(6, { message: "Senha deve ter no mínimo 6 caracteres." })
+  @MaxLength(50, { message: "Senha deve ter no máximo 50 caracteres." })
   @Transform(({ value }: { value: string }) => value?.trim())
   password!: string;
   @ApiProperty({
-    description: "user permission",
+    description: "Permissão do usuário",
     type: "string",
     example: "user",
     default: "user",
   })
-  @IsNotEmpty({ message: "Role cannot be empty" })
-  @IsEnum(UserRole, { message: "Role must be user or admin" })
+  @IsNotEmpty({ message: "Role não pode estar vazio." })
+  @IsEnum(UserRole, { message: "Role deve ser user ou admin." })
   role!: UserRole;
 }

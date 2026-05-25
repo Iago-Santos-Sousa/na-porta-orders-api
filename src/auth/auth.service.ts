@@ -47,12 +47,12 @@ export class AuthService {
 
   async signIn(email: string, pass: string): Promise<SignInResponseDto> {
     const user = await this.userService.findByEmail(email);
-    if (!user) throw new UnauthorizedException();
+    if (!user) throw new UnauthorizedException("Credenciais inválidas.");
 
     const passwordMatches = await compareSaltedHash(pass, user.password);
 
     if (!passwordMatches) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException("Credenciais inválidas.");
     }
 
     const payload = buildAuthUserPayload(user);
@@ -72,8 +72,9 @@ export class AuthService {
         secret: process.env.JWT_REFRESH_SECRET,
       });
 
-      if (!decoded) throw new UnauthorizedException();
-      if (decoded.type !== "refresh_token") throw new UnauthorizedException();
+      if (!decoded) throw new UnauthorizedException("Credenciais inválidas.");
+      if (decoded.type !== "refresh_token")
+        throw new UnauthorizedException("Credenciais inválidas.");
 
       const user = await this.userService.findById(decoded.sub);
       if (!user || !user.refresh_token) throw new UnauthorizedException();
@@ -85,9 +86,7 @@ export class AuthService {
       }
 
       const newPayload = buildAuthUserPayload(user);
-
       const { accessToken, refreshToken: newRefreshToken } = this.signTokens(newPayload);
-
       await this.persistRefreshToken(user.user_id, newRefreshToken);
 
       return {

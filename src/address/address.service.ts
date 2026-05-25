@@ -33,7 +33,7 @@ export class AddressService {
     });
 
     if (!address) {
-      throw new NotFoundException(`Address ${address_id} not found`);
+      throw new NotFoundException(`Endereço com ID: ${address_id} não encontrado.`);
     }
 
     return address;

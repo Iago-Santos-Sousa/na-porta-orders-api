@@ -10,7 +10,7 @@ import {
 import { ApiTags } from "@nestjs/swagger";
 import type { Request, Response } from "express";
 import { CurrentUser } from "./current-user.decorator";
-import { CurrentUserDto } from "./current-user.dto";
+import { CurrentUserDto } from "./dto/current-user.dto";
 import { AuthService } from "./auth.service";
 import { SignInDto } from "./dto/signin.dto";
 import { Public } from "@/common/decorators/skipAuth.decorator";
@@ -39,7 +39,7 @@ export class AuthController {
       (req.cookies as Record<string, string>)?.["refresh_token"] ?? bodyRefreshToken;
 
     if (!refreshToken) {
-      throw new UnauthorizedException("Refresh token não encontrado");
+      throw new UnauthorizedException("Refresh token não encontrado.");
     }
 
     const result = await this.authService.refreshToken(refreshToken);

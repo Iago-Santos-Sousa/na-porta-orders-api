@@ -25,7 +25,7 @@ export class UserService {
       });
 
       if (existUser) {
-        throw new HttpException("Email already exists", HttpStatus.CONFLICT);
+        throw new HttpException("Email já existe.", HttpStatus.CONFLICT);
       }
 
       const salt = randomBytes(8).toString("hex"); // unique salt per registration
@@ -59,14 +59,13 @@ export class UserService {
       where: { user_id },
     });
 
-    if (!user) throw new NotFoundException(`User with ID ${user_id} not found`);
+    if (!user) throw new NotFoundException(`Usuário com ID ${user_id} não encontrado.`);
 
     const { password, refresh_token, reset_token, reset_token_expiry, ...safeUser } = user;
-
     const userDto = new UserDto(safeUser);
 
     return {
-      message: "User found",
+      message: "Usuário encontrado",
       user: userDto,
     };
   }
@@ -89,7 +88,7 @@ export class UserService {
     });
 
     if (!user) {
-      throw new NotFoundException(`User with id ${user_id} not found`);
+      throw new NotFoundException(`Usuário com ID ${user_id} não encontrado.`);
     }
 
     const mergedUser = this.userRepository.merge(user, updateUserDto);
@@ -107,7 +106,7 @@ export class UserService {
     });
 
     if (!user) {
-      throw new NotFoundException(`User with ID ${user_id} not found`);
+      throw new NotFoundException(`Usuário com ID ${user_id} não encontrado.`);
     }
 
     await this.userRepository.delete(user_id);

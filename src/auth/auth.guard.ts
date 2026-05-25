@@ -41,7 +41,7 @@ export class JwtAuthGuard extends AuthGuard("jwt") implements CanActivate {
 
     const token = this.extractTokenFromHeader(request);
     if (!token) {
-      throw new UnauthorizedException("access_token is required");
+      throw new UnauthorizedException("access_token é necessário.");
     }
 
     try {
@@ -58,7 +58,7 @@ export class JwtAuthGuard extends AuthGuard("jwt") implements CanActivate {
       const hasRolePermission = requiredRoles.some((role) => user?.roles?.includes(role));
 
       if (!hasRolePermission) {
-        throw new ForbiddenException("Insufficient permissions");
+        throw new ForbiddenException("Permissões insuficientes para acessar este recurso.");
       }
     } catch (error) {
       console.error(error);
@@ -66,7 +66,7 @@ export class JwtAuthGuard extends AuthGuard("jwt") implements CanActivate {
         throw error;
       }
 
-      throw new UnauthorizedException();
+      throw new UnauthorizedException("Permissões insuficientes para acessar este recurso.");
     }
     return true;
   }
