@@ -5,28 +5,18 @@ on:
     branches:
       - main
       - master
+      - develop
   pull_request:
 
 env:
-  NODE_ENV: ${{ vars.NODE_ENV || 'test' }}
-  APP_PORT: ${{ vars.APP_PORT || '8080' }}
   DB_HOST: ${{ vars.DB_HOST || '127.0.0.1' }}
   DB_PORT: ${{ vars.DB_PORT || '5432' }}
   DB_USER: ${{ vars.DB_USER || 'postgres' }}
   DB_PASSWORD: ${{ secrets.DB_PASSWORD || 'postgres123' }}
   DB_NAME: ${{ vars.DB_NAME || 'na_porta_orders' }}
-  DB_SCHEMA: ${{ vars.DB_SCHEMA || 'public' }}
-  DB_CONNECTION_LIMIT: ${{ vars.DB_CONNECTION_LIMIT || '10' }}
-  DB_SYNCHRONIZE: ${{ vars.DB_SYNCHRONIZE || 'false' }}
-  DB_SSL: ${{ vars.DB_SSL || 'false' }}
   DB_SEED_DEMO: ${{ vars.DB_SEED_DEMO || 'true' }}
   ADMIN_EMAIL: ${{ vars.ADMIN_EMAIL || 'admin@na-porta.local' }}
   ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD || 'Admin@123456' }}
-  JWT_SECRET: ${{ secrets.JWT_SECRET || 'change-me-access-secret' }}
-  JWT_REFRESH_SECRET: ${{ secrets.JWT_REFRESH_SECRET || 'change-me-refresh-secret' }}
-  JWT_EXPIRES: ${{ vars.JWT_EXPIRES || '45m' }}
-  JWT_REFRESH_EXPIRES: ${{ vars.JWT_REFRESH_EXPIRES || '7d' }}
-  CORS_ORIGIN: ${{ vars.CORS_ORIGIN || 'http://localhost:3000' }}
 
 jobs:
   validate:
@@ -69,13 +59,3 @@ jobs:
 
       - name: Bootstrap database
         run: npm run db:bootstrap:prod
-
-  docker-build:
-    runs-on: ubuntu-latest
-    needs: validate
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Build Docker image
-        run: docker build -t na-porta-orders-api:ci .

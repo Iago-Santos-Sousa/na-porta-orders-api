@@ -153,7 +153,6 @@ O workflow em `.github/workflows/ci.yml` executa:
 - Prettier check
 - build da aplicação
 - bootstrap do banco com PostgreSQL de serviço
-- build da imagem Docker
 
 ## Observações importantes
 
