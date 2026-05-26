@@ -14,4 +14,4 @@ COPY package*.json ./
 RUN npm ci --omit=dev
 COPY --from=build /app/dist ./dist
 EXPOSE 8080
-CMD ["npm", "run", "npm run db:bootstrap:prod && start:prod"]
+CMD ["sh", "-c", "npm run db:bootstrap:prod && npm run start:prod"]
