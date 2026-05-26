@@ -20,6 +20,7 @@ API REST para gerenciamento de pedidos da naPorta, construída com NestJS, TypeO
 - Já existe alguns pedidos e endereços criados
 
 ### Imagem de demonstração da API:
+<img width="1275" height="1014" alt="ex" src="https://github.com/user-attachments/assets/06436fc8-b996-46cf-947a-3a6e0c0b9256" />
 
 ## Índice
 
