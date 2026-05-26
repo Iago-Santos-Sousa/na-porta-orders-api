@@ -10,9 +10,29 @@ jobs:
   validate:
     name: Lint API
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: na-porta-orders-api
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres123
+          POSTGRES_DB: na_porta_orders
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d na_porta_orders"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DB_HOST: 127.0.0.1
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres123
+      DB_NAME: na_porta_orders
+      DB_SEED_DEMO: true
+      ADMIN_EMAIL: admin@na-porta.local
+      ADMIN_PASSWORD: Admin@123456
     steps:
       - name: Checkout
         uses: actions/checkout@v4
