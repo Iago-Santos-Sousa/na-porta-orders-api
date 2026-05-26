@@ -2,39 +2,17 @@ name: CI
 
 on:
   push:
-    branches:
-      - main
-      - master
-      - develop
+    branches: [main, develop]
   pull_request:
-
-env:
-  DB_HOST: ${{ vars.DB_HOST || '127.0.0.1' }}
-  DB_PORT: ${{ vars.DB_PORT || '5432' }}
-  DB_USER: ${{ vars.DB_USER || 'postgres' }}
-  DB_PASSWORD: ${{ secrets.DB_PASSWORD || 'postgres123' }}
-  DB_NAME: ${{ vars.DB_NAME || 'na_porta_orders' }}
-  DB_SEED_DEMO: ${{ vars.DB_SEED_DEMO || 'true' }}
-  ADMIN_EMAIL: ${{ vars.ADMIN_EMAIL || 'admin@na-porta.local' }}
-  ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD || 'Admin@123456' }}
+    branches: [main, develop]
 
 jobs:
   validate:
+    name: Lint API
     runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:16-alpine
-        env:
-          POSTGRES_USER: ${{ env.DB_USER }}
-          POSTGRES_PASSWORD: ${{ env.DB_PASSWORD }}
-          POSTGRES_DB: ${{ env.DB_NAME }}
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd "pg_isready -U ${{ env.DB_USER }} -d ${{ env.DB_NAME }}"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+    defaults:
+      run:
+        working-directory: na-porta-orders-api
     steps:
       - name: Checkout
         uses: actions/checkout@v4
