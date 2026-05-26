@@ -31,3 +31,6 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      - name: HTTP e2e tests
+        run: npm run test:e2e -- --runInBand
