@@ -1,0 +1,53 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: na-porta-orders-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres123}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - '${POSTGRES_PORT}:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB || exit 1']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    container_name: na-porta-orders-api
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - '${APP_PORT}:8080'
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      APP_PORT: ${APP_PORT}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres123}
+      DB_NAME: ${DB_NAME}
+      DB_SCHEMA: ${DB_SCHEMA}
+      DB_CONNECTION_LIMIT: ${DB_CONNECTION_LIMIT}
+      DB_SYNCHRONIZE: ${DB_SYNCHRONIZE}
+      DB_SSL: ${DB_SSL}
+      DB_SEED_DEMO: ${DB_SEED_DEMO}
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-Admin@123456}
+      JWT_SECRET: ${JWT_SECRET:-change-me-access-secret}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-change-me-refresh-secret}
+      JWT_EXPIRES: ${JWT_EXPIRES}
+      JWT_REFRESH_EXPIRES: ${JWT_REFRESH_EXPIRES}
+      CORS_ORIGIN: ${CORS_ORIGIN}
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres_data:

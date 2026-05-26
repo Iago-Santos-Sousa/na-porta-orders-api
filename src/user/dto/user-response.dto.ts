@@ -1,0 +1,82 @@
+import { ApiProperty, OmitType, PickType } from "@nestjs/swagger";
+import { IsOptional } from "class-validator";
+
+export class UsersDto {
+  @ApiProperty({ example: 1 })
+  user_id!: number;
+
+  @ApiProperty({ example: "John Doe" })
+  name!: string;
+
+  @ApiProperty({
+    example: "john.doe@example.com",
+  })
+  email!: string;
+
+  @ApiProperty({ example: "user" })
+  role!: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  created_at?: Date;
+
+  @ApiProperty({ required: false })
+  updated_at?: Date;
+}
+
+export class UserCreatedResponseDto {
+  @ApiProperty({ example: "Usuário criado com sucesso" })
+  message!: string;
+
+  @ApiProperty({
+    type: PickType(UsersDto, ["user_id", "name", "email", "role"] as const),
+  })
+  user!: Omit<UsersDto, "created_at" | "updated_at">;
+}
+
+export class UserUpdatedResponseDto extends UserCreatedResponseDto {
+  @ApiProperty({ example: "Usuário atualizado com sucesso" })
+  message: string = "Usuário atualizado com sucesso";
+}
+
+export class UserResponseDto {
+  @ApiProperty({ example: "Usuário encontrado" })
+  message?: string;
+
+  @ApiProperty({
+    type: [OmitType(UsersDto, [] as const)],
+  })
+  user: UsersDto;
+
+  constructor(user: UsersDto) {
+    this.user = {
+      user_id: user.user_id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      created_at: user.created_at,
+      updated_at: user.updated_at,
+    };
+  }
+}
+
+export class UsersResponseDto {
+  @ApiProperty({ example: "Usuários recuperados com sucesso" })
+  message?: string;
+
+  @ApiProperty({
+    type: [OmitType(UsersDto, [] as const)],
+  })
+  users: Partial<UsersDto>[];
+
+  constructor(users: UsersDto[]) {
+    this.users = users.map((user) => ({
+      user_id: user.user_id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      created_at: user.created_at,
+      updated_at: user.updated_at,
+    }));
+  }
+}

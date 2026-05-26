@@ -1,29 +1,39 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
-import request from 'supertest';
-import { App } from 'supertest/types';
-import { AppModule } from './../src/app.module';
+import type { INestApplication } from "@nestjs/common";
+import request from "supertest";
+import {
+  createHttpTestApp,
+  expectTypedBody,
+  type HttpTestAppContext,
+  resetHttpMocks,
+} from "./http-test-app.helper";
 
-describe('AppController (e2e)', () => {
-  let app: INestApplication<App>;
+describe("Status HTTP API (e2e)", () => {
+  let app: INestApplication;
+  let context: HttpTestAppContext;
 
-  beforeEach(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
-    }).compile();
-
-    app = moduleFixture.createNestApplication();
-    await app.init();
+  beforeAll(async () => {
+    context = await createHttpTestApp();
+    app = context.app;
   });
 
-  it('/ (GET)', () => {
-    return request(app.getHttpServer())
-      .get('/')
-      .expect(200)
-      .expect('Hello World!');
+  beforeEach(() => {
+    resetHttpMocks();
   });
 
-  afterEach(async () => {
+  afterAll(async () => {
     await app.close();
+  });
+
+  it("GET /api/status returns the API status payload", async () => {
+    await request(context.httpServer)
+      .get("/api/status")
+      .expect(200)
+      .expect(
+        expectTypedBody<{ message: string; status: string; timestamp: string }>((body) => {
+          expect(body.message).toBe("Hello World!");
+          expect(body.status).toBe("OK");
+          expect(typeof body.timestamp).toBe("string");
+        }),
+      );
   });
 });
