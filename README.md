@@ -6,26 +6,59 @@ API REST para gerenciamento de pedidos da naPorta, construída com NestJS, TypeO
 
 - API: https://na-porta-orders-api.onrender.com/api/status
 - Swagger: https://na-porta-orders-api.onrender.com/api/docs
+- Use o usuário padrão adicionado para se autenticar na API e utilizá-la com o Swagger:
+  - `ADMIN_EMAIL`
+  - `ADMIN_PASSWORD`
+
+  Valores padrão dos arquivos de exemplo:
+  - Nome: `Administrador naPorta`
+  - email: `jhon.doe@gmail.com`
+  - senha: `Admin@123456`
+
+- Já existe alguns pedidos e endereços criados
 
 ## Índice
 
-- [Visão geral](#visão-geral)
-- [Stack e decisões técnicas](#stack-e-decisões-técnicas)
-- [Regras de negócio implementadas](#regras-de-negócio-implementadas)
-- [Entidades, tabelas e relacionamentos](#entidades-tabelas-e-relacionamentos)
-- [Autenticação e autorização](#autenticação-e-autorização)
-- [Segurança implementada](#segurança-implementada)
-- [Swagger](#swagger)
-- [Testes automatizados](#testes-automatizados)
-- [CI](#ci)
-- [Migrations e seed](#migrations-e-seed)
-- [Execução local](#execução-local)
-- [Execução com Docker Compose](#execução-com-docker-compose)
-- [Deploy na Render](#deploy-na-render)
-- [Boas práticas adotadas](#boas-práticas-adotadas)
-- [Pontos de Clean Code identificáveis no projeto](#pontos-de-clean-code-identificáveis-no-projeto)
-- [Scripts principais](#scripts-principais)
-- [Observações finais](#observações-finais)
+- [na-porta-orders-api](#na-porta-orders-api)
+  - [Índice](#índice)
+  - [Visão geral](#visão-geral)
+  - [Stack e decisões técnicas](#stack-e-decisões-técnicas)
+  - [Regras de negócio implementadas](#regras-de-negócio-implementadas)
+    - [Pedidos](#pedidos)
+    - [Usuários](#usuários)
+    - [Endereços](#endereços)
+  - [Entidades, tabelas e relacionamentos](#entidades-tabelas-e-relacionamentos)
+    - [`User`](#user)
+    - [`Address`](#address)
+    - [`Order`](#order)
+    - [`OrderItem`](#orderitem)
+  - [Autenticação e autorização](#autenticação-e-autorização)
+    - [JWT de acesso](#jwt-de-acesso)
+    - [Refresh token com JWT](#refresh-token-com-jwt)
+    - [Rotas públicas](#rotas-públicas)
+    - [Permissões implementadas por role](#permissões-implementadas-por-role)
+      - [`admin`](#admin)
+      - [`user`](#user-1)
+    - [Observação importante sobre permissões atuais](#observação-importante-sobre-permissões-atuais)
+  - [Segurança implementada](#segurança-implementada)
+  - [Swagger](#swagger)
+  - [Testes automatizados](#testes-automatizados)
+    - [Testes end-to-end HTTP](#testes-end-to-end-http)
+  - [CI](#ci)
+  - [Migrations e seed](#migrations-e-seed)
+    - [Migrations](#migrations)
+    - [Seed](#seed)
+    - [Usuário admin padrão criado pela seed](#usuário-admin-padrão-criado-pela-seed)
+  - [Execução local](#execução-local)
+    - [Pré-requisitos](#pré-requisitos)
+    - [Arquivo de ambiente](#arquivo-de-ambiente)
+    - [Passo a passo](#passo-a-passo)
+  - [Execução com Docker Compose](#execução-com-docker-compose)
+  - [Deploy na Render](#deploy-na-render)
+  - [Boas práticas adotadas](#boas-práticas-adotadas)
+  - [Pontos de Clean Code identificáveis no projeto](#pontos-de-clean-code-identificáveis-no-projeto)
+  - [Scripts principais](#scripts-principais)
+  - [Observações finais](#observações-finais)
 
 ## Visão geral
 
@@ -344,6 +377,7 @@ A seed cria ou atualiza um usuário administrador padrão com base nas variávei
 
 Valores padrão dos arquivos de exemplo:
 
+- Nome: `Administrador naPorta`
 - email: `jhon.doe@gmail.com`
 - senha: `Admin@123456`
 
