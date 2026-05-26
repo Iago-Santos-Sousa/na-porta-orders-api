@@ -5,9 +5,12 @@ import { UserDto } from "../src/user/dto/user.dto";
 import { UserRole } from "../src/utils/enums";
 import {
   createHttpTestApp,
+  currentUser,
   expectTypedBody,
   type HttpTestAppContext,
+  mockForbidden,
   resetHttpMocks,
+  setCurrentUser,
   sampleUser,
   userServiceMock,
 } from "./http-test-app.helper";
@@ -108,9 +111,53 @@ describe("Users HTTP API (e2e)", () => {
     expect(userServiceMock.update).toHaveBeenCalledWith(
       1,
       expect.objectContaining({ name: "Usuario Atualizado" }),
+      currentUser,
     );
 
     await request(context.httpServer).delete("/api/users/1").expect(204);
     expect(userServiceMock.remove).toHaveBeenCalledWith(1);
+  });
+
+  it("PATCH /api/users/:id returns 403 when a user tries to update another user", async () => {
+    setCurrentUser({
+      sub: 2,
+      username: "Regular User",
+      email: "regular.user@example.com",
+      roles: [UserRole.USER],
+      type: "access_token",
+    });
+    userServiceMock.update.mockRejectedValueOnce(mockForbidden());
+
+    await request(context.httpServer)
+      .patch("/api/users/1")
+      .send({ name: "Tentativa indevida" })
+      .expect(403);
+
+    expect(userServiceMock.update).toHaveBeenCalledWith(
+      1,
+      expect.objectContaining({ name: "Tentativa indevida" }),
+      currentUser,
+    );
+  });
+
+  it("PATCH /api/users/:id allows a user to update only their own credentials", async () => {
+    setCurrentUser({
+      sub: 2,
+      username: "Regular User",
+      email: "regular.user@example.com",
+      roles: [UserRole.USER],
+      type: "access_token",
+    });
+
+    await request(context.httpServer)
+      .patch("/api/users/2")
+      .send({ email: "novo.email@example.com" })
+      .expect(200);
+
+    expect(userServiceMock.update).toHaveBeenCalledWith(
+      2,
+      expect.objectContaining({ email: "novo.email@example.com" }),
+      currentUser,
+    );
   });
 });

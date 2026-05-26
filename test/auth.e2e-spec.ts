@@ -36,11 +36,11 @@ describe("Auth HTTP API (e2e)", () => {
 
     await request(context.httpServer)
       .post("/api/auth/login")
-      .send({ email: "admin@na-porta.local", password: "Admin@123456" })
+      .send({ email: "jhon.doe@gmail.com", password: "Admin@123456" })
       .expect(200)
       .expect(expectTypedBody<SignInResponseDto>((body) => expect(body).toEqual(authResponse)));
 
-    expect(authServiceMock.signIn).toHaveBeenCalledWith("admin@na-porta.local", "Admin@123456");
+    expect(authServiceMock.signIn).toHaveBeenCalledWith("jhon.doe@gmail.com", "Admin@123456");
   });
 
   it("POST /api/auth/refresh-token requires a token and returns a refreshed session", async () => {

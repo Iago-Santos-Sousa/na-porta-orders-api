@@ -47,11 +47,15 @@ export class OrdersService {
     };
   }
 
-  private assertCanUpdateOrder(order: Order, currentUser: CurrentUserDto): void {
+  private assertCanManageOrder(
+    order: Order,
+    currentUser: CurrentUserDto,
+    action: "atualizar" | "excluir",
+  ): void {
     const isAdmin = currentUser.roles.includes(UserRole.ADMIN);
     const isOwner = order.created_by_user_id === currentUser.sub;
     if (!isAdmin && !isOwner) {
-      throw new ForbiddenException("Você não tem permissão para atualizar este pedido.");
+      throw new ForbiddenException(`Você não tem permissão para ${action} este pedido.`);
     }
   }
 
@@ -107,7 +111,7 @@ export class OrdersService {
     currentUser: CurrentUserDto,
   ): Promise<Order> {
     const existingOrder = await this.findOne(order_id);
-    this.assertCanUpdateOrder(existingOrder, currentUser);
+    this.assertCanManageOrder(existingOrder, currentUser, "atualizar");
 
     const { items, delivery_address_id, ...orderData } = updateOrderDto;
 
@@ -151,8 +155,9 @@ export class OrdersService {
     }
   }
 
-  async remove(order_id: string): Promise<void> {
-    await this.findOne(order_id);
+  async remove(order_id: string, currentUser: CurrentUserDto): Promise<void> {
+    const existingOrder = await this.findOne(order_id);
+    this.assertCanManageOrder(existingOrder, currentUser, "excluir");
     await this.orderRepository.softDelete({ order_id });
   }
 }

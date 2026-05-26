@@ -24,6 +24,8 @@ import { UserDto } from "./dto/user.dto";
 import { PageDto } from "@/common/dtos/page.dto";
 import { PageOptionsDto } from "@/common/dtos/page-options.dto";
 import { UserDocs } from "./user.docs";
+import { CurrentUser } from "@/auth/current-user.decorator";
+import { CurrentUserDto } from "@/auth/dto/current-user.dto";
 
 @ApiTags("users")
 @Controller("users")
@@ -68,8 +70,12 @@ export class UserController {
   @Patch(":id")
   @HttpCode(200)
   @UserDocs.update()
-  async update(@Param("id", ParseIntPipe) id: number, @Body() updateUserDto: UpdateUserDto) {
-    const data = await this.userService.update(id, updateUserDto);
+  async update(
+    @Param("id", ParseIntPipe) id: number,
+    @Body() updateUserDto: UpdateUserDto,
+    @CurrentUser() currentUser: CurrentUserDto,
+  ) {
+    const data = await this.userService.update(id, updateUserDto, currentUser);
     return data.user;
   }
 

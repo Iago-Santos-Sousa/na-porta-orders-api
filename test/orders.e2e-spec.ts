@@ -8,10 +8,12 @@ import {
   currentUser,
   expectTypedBody,
   type HttpTestAppContext,
+  mockForbidden,
   ordersServiceMock,
   resetHttpMocks,
   sampleAddress,
   sampleOrder,
+  setCurrentUser,
 } from "./http-test-app.helper";
 
 describe("Orders HTTP API (e2e)", () => {
@@ -92,6 +94,33 @@ describe("Orders HTTP API (e2e)", () => {
     );
 
     await request(context.httpServer).delete(`/api/orders/${sampleOrder.order_id}`).expect(204);
-    expect(ordersServiceMock.remove).toHaveBeenCalledWith(sampleOrder.order_id);
+    expect(ordersServiceMock.remove).toHaveBeenCalledWith(sampleOrder.order_id, currentUser);
+  });
+
+  it("PATCH and DELETE /api/orders/:id return 403 when a user tries to manage another user's order", async () => {
+    setCurrentUser({
+      sub: 2,
+      username: "Regular User",
+      email: "regular.user@example.com",
+      roles: ["user"],
+      type: "access_token",
+    });
+    ordersServiceMock.update.mockRejectedValueOnce(mockForbidden());
+    ordersServiceMock.remove.mockRejectedValueOnce(mockForbidden());
+
+    await request(context.httpServer)
+      .patch(`/api/orders/${sampleOrder.order_id}`)
+      .send({ status: OrderStatus.CONFIRMED })
+      .expect(403);
+
+    expect(ordersServiceMock.update).toHaveBeenCalledWith(
+      sampleOrder.order_id,
+      expect.objectContaining({ status: OrderStatus.CONFIRMED }),
+      currentUser,
+    );
+
+    await request(context.httpServer).delete(`/api/orders/${sampleOrder.order_id}`).expect(403);
+
+    expect(ordersServiceMock.remove).toHaveBeenCalledWith(sampleOrder.order_id, currentUser);
   });
 });

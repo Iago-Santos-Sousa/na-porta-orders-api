@@ -1,4 +1,5 @@
 import {
+  ForbiddenException,
   CanActivate,
   ClassSerializerInterceptor,
   ExecutionContext,
@@ -33,13 +34,30 @@ export interface HttpTestAppContext {
   httpServer: Server;
 }
 
-export const currentUser: CurrentUserDto = {
+const DEFAULT_CURRENT_USER: CurrentUserDto = {
   sub: 1,
   username: "Admin User",
-  email: "admin@na-porta.local",
+  email: "jhon.doe@gmail.com",
   roles: [UserRole.ADMIN],
   type: "access_token",
 };
+
+export const currentUser: CurrentUserDto = {
+  ...DEFAULT_CURRENT_USER,
+  roles: [...DEFAULT_CURRENT_USER.roles],
+};
+
+export function setCurrentUser(nextUser: CurrentUserDto): void {
+  currentUser.sub = nextUser.sub;
+  currentUser.username = nextUser.username;
+  currentUser.email = nextUser.email;
+  currentUser.roles = [...nextUser.roles];
+  currentUser.type = nextUser.type;
+}
+
+function resetCurrentUser(): void {
+  setCurrentUser(DEFAULT_CURRENT_USER);
+}
 
 class TestAuthGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
@@ -114,7 +132,7 @@ export const ordersServiceMock: OrdersServiceMock = {
 export const sampleUser = {
   user_id: 1,
   name: "Admin User",
-  email: "admin@na-porta.local",
+  email: "jhon.doe@gmail.com",
   role: UserRole.ADMIN,
   created_at: new Date("2026-05-25T00:00:00.000Z"),
   updated_at: new Date("2026-05-25T00:00:00.000Z"),
@@ -182,6 +200,7 @@ export function expectTypedBody<T>(
 
 export function resetHttpMocks(): void {
   jest.clearAllMocks();
+  resetCurrentUser();
 
   authServiceMock.signIn.mockResolvedValue(authResponse);
   authServiceMock.refreshToken.mockResolvedValue(authResponse);
@@ -205,6 +224,10 @@ export function resetHttpMocks(): void {
   ordersServiceMock.findOne.mockResolvedValue(sampleOrder);
   ordersServiceMock.update.mockResolvedValue(sampleOrder);
   ordersServiceMock.remove.mockResolvedValue(undefined);
+}
+
+export function mockForbidden(): ForbiddenException {
+  return new ForbiddenException("Permissões insuficientes para acessar este recurso.");
 }
 
 export async function createHttpTestApp(): Promise<HttpTestAppContext> {

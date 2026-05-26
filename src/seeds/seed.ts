@@ -20,7 +20,7 @@ interface OrderSeed {
 
 const ADMIN_SEED = {
   name: "Administrador naPorta",
-  email: process.env.ADMIN_EMAIL ?? "admin@na-porta.local",
+  email: process.env.ADMIN_EMAIL ?? "jhon.doe@gmail.com",
   password: process.env.ADMIN_PASSWORD ?? "Admin@123456",
   role: UserRole.ADMIN,
 };

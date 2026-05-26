@@ -1,5 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Injectable, NotFoundException, HttpException, HttpStatus } from "@nestjs/common";
+import {
+  Injectable,
+  NotFoundException,
+  HttpException,
+  HttpStatus,
+  ForbiddenException,
+} from "@nestjs/common";
 import { User } from "./entities/user.entity";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
@@ -12,11 +18,30 @@ import { randomBytes, scrypt as _scrypt } from "crypto";
 import { promisify } from "util";
 import { UserRepository } from "./repositories/user.repository";
 import { Order as SortOrder } from "@/common/constants/order.constant";
+import { CurrentUserDto } from "@/auth/dto/current-user.dto";
+import { UserRole } from "@/utils/enums";
 const scrypt = promisify(_scrypt);
 
 @Injectable()
 export class UserService {
   constructor(private readonly userRepository: UserRepository) {}
+
+  private assertCanUpdateUser(
+    user_id: number,
+    updateUserDto: UpdateUserDto,
+    currentUser: CurrentUserDto,
+  ): void {
+    const isAdmin = currentUser.roles.includes(UserRole.ADMIN);
+    const isSelf = currentUser.sub === user_id;
+
+    if (!isAdmin && !isSelf) {
+      throw new ForbiddenException("Você só pode atualizar as suas próprias credenciais.");
+    }
+
+    if (!isAdmin && updateUserDto.role !== undefined) {
+      throw new ForbiddenException("Você não tem permissão para alterar a role de um usuário.");
+    }
+  }
 
   async create(createUserDto: CreateUserDto): Promise<UserResponseDto> {
     try {
@@ -80,7 +105,11 @@ export class UserService {
     });
   }
 
-  async update(user_id: number, updateUserDto: UpdateUserDto): Promise<UserResponseDto> {
+  async update(
+    user_id: number,
+    updateUserDto: UpdateUserDto,
+    currentUser: CurrentUserDto,
+  ): Promise<UserResponseDto> {
     const user = await this.userRepository.findOne({
       where: { user_id },
     });
@@ -88,6 +117,8 @@ export class UserService {
     if (!user) {
       throw new NotFoundException(`Usuário com ID ${user_id} não encontrado.`);
     }
+
+    this.assertCanUpdateUser(user_id, updateUserDto, currentUser);
 
     const mergedUser = this.userRepository.merge(user, updateUserDto);
     const updatedUser = await this.userRepository.save(mergedUser);

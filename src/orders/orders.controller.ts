@@ -56,7 +56,7 @@ export class OrdersController {
   @Delete(":id")
   @HttpCode(HttpStatus.NO_CONTENT)
   @OrdersDocs.remove()
-  remove(@Param("id", ParseUUIDPipe) id: string) {
-    return this.ordersService.remove(id);
+  remove(@Param("id", ParseUUIDPipe) id: string, @CurrentUser() currentUser: CurrentUserDto) {
+    return this.ordersService.remove(id, currentUser);
   }
 }
