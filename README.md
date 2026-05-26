@@ -4,6 +4,8 @@ API REST para gerenciamento de pedidos da naPorta, construída com NestJS, TypeO
 
 **Aplicação publicada em produção:**
 
+**Obervação:** Como a API está no Render, ao entrar em algum endpoint, pode demorar um pouco a iniciar o servidor, pois o mesmo entra em hibernação após 15 minutos de inatividade.
+
 - API: https://na-porta-orders-api.onrender.com/api/status
 - Swagger: https://na-porta-orders-api.onrender.com/api/docs
 - Use o usuário padrão adicionado para se autenticar na API e utilizá-la com o Swagger:
@@ -532,7 +534,6 @@ npm run format:check
 
 # testes
 npm test
-npm run test:cov
 npm run test:e2e
 
 # banco
