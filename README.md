@@ -152,7 +152,6 @@ O workflow em `.github/workflows/ci.yml` executa:
 - ESLint
 - Prettier check
 - build da aplicação
-- bootstrap do banco com PostgreSQL de serviço
 
 ## Observações importantes
 
