@@ -7,6 +7,27 @@ on:
       - master
   pull_request:
 
+env:
+  NODE_ENV: ${{ vars.NODE_ENV || 'test' }}
+  APP_PORT: ${{ vars.APP_PORT || '8080' }}
+  DB_HOST: ${{ vars.DB_HOST || '127.0.0.1' }}
+  DB_PORT: ${{ vars.DB_PORT || '5432' }}
+  DB_USER: ${{ vars.DB_USER || 'postgres' }}
+  DB_PASSWORD: ${{ secrets.DB_PASSWORD || 'postgres123' }}
+  DB_NAME: ${{ vars.DB_NAME || 'na_porta_orders' }}
+  DB_SCHEMA: ${{ vars.DB_SCHEMA || 'public' }}
+  DB_CONNECTION_LIMIT: ${{ vars.DB_CONNECTION_LIMIT || '10' }}
+  DB_SYNCHRONIZE: ${{ vars.DB_SYNCHRONIZE || 'false' }}
+  DB_SSL: ${{ vars.DB_SSL || 'false' }}
+  DB_SEED_DEMO: ${{ vars.DB_SEED_DEMO || 'true' }}
+  ADMIN_EMAIL: ${{ vars.ADMIN_EMAIL || 'admin@na-porta.local' }}
+  ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD || 'Admin@123456' }}
+  JWT_SECRET: ${{ secrets.JWT_SECRET || 'change-me-access-secret' }}
+  JWT_REFRESH_SECRET: ${{ secrets.JWT_REFRESH_SECRET || 'change-me-refresh-secret' }}
+  JWT_EXPIRES: ${{ vars.JWT_EXPIRES || '45m' }}
+  JWT_REFRESH_EXPIRES: ${{ vars.JWT_REFRESH_EXPIRES || '7d' }}
+  CORS_ORIGIN: ${{ vars.CORS_ORIGIN || 'http://localhost:3000' }}
+
 jobs:
   validate:
     runs-on: ubuntu-latest
@@ -14,36 +35,16 @@ jobs:
       postgres:
         image: postgres:16-alpine
         env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres123
-          POSTGRES_DB: na_porta_orders
+          POSTGRES_USER: ${{ env.DB_USER }}
+          POSTGRES_PASSWORD: ${{ env.DB_PASSWORD }}
+          POSTGRES_DB: ${{ env.DB_NAME }}
         ports:
           - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U postgres -d na_porta_orders"
+          --health-cmd "pg_isready -U ${{ env.DB_USER }} -d ${{ env.DB_NAME }}"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-    env:
-      NODE_ENV: test
-      APP_PORT: 8080
-      DB_HOST: 127.0.0.1
-      DB_PORT: 5432
-      DB_USER: postgres
-      DB_PASSWORD: postgres123
-      DB_NAME: na_porta_orders
-      DB_SCHEMA: public
-      DB_CONNECTION_LIMIT: 10
-      DB_SYNCHRONIZE: false
-      DB_SSL: false
-      DB_SEED_DEMO: true
-      ADMIN_EMAIL: admin@na-porta.local
-      ADMIN_PASSWORD: Admin@123456
-      JWT_SECRET: ci-access-secret
-      JWT_REFRESH_SECRET: ci-refresh-secret
-      JWT_EXPIRES: 45m
-      JWT_REFRESH_EXPIRES: 7d
-      CORS_ORIGIN: http://localhost:3000
     steps:
       - name: Checkout
         uses: actions/checkout@v4

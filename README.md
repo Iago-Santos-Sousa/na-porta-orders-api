@@ -14,7 +14,7 @@ API REST para gerenciamento de pedidos da naPorta, construída com NestJS, TypeO
 
 O projeto usa a separação recomendada entre schema e dados de demonstração:
 
-- PostgreSQL cria o database via `POSTGRES_DB` no Docker.
+- PostgreSQL cria o database a partir das variáveis `DB_*` fornecidas ao Compose.
 - TypeORM migrations criam e versionam o schema.
 - O seed cria dados de demonstração de forma idempotente.
 
@@ -134,9 +134,13 @@ Use `.env.docker.example` como base.
 
 Campos principais:
 
-- `POSTGRES_USER`
-- `POSTGRES_PASSWORD`
-- `POSTGRES_DB`
+- `POSTGRES_PORT`
+- `DB_HOST`
+- `DB_PORT`
+- `DB_USER`
+- `DB_PASSWORD`
+- `DB_NAME`
+- `DB_SCHEMA`
 - `DB_SEED_DEMO=true`
 - `ADMIN_EMAIL`
 - `ADMIN_PASSWORD`
