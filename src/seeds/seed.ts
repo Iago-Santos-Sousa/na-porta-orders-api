@@ -228,7 +228,9 @@ async function upsertOrders(
       const address = addressMap.get(orderSeed.address_key);
 
       if (!address) {
-        throw new Error(`Address ${orderSeed.address_key} was not found during seed.`);
+        throw new Error(
+          `Endereço ${orderSeed.address_key} não foi encontrado durante a execução da seed.`,
+        );
       }
 
       const existingOrder = await manager.findOne(Order, {
@@ -275,13 +277,13 @@ async function upsertOrders(
 }
 
 export async function runDemoSeed(dataSource: DataSource): Promise<void> {
-  console.log("Running demo seed...");
+  console.log("Executando seed de demonstração...");
 
   const adminUser = await upsertAdminUser(dataSource);
   const addressMap = await upsertAddresses(dataSource);
   await upsertOrders(dataSource, adminUser, addressMap);
 
   console.log(
-    `Demo seed finished. Admin email: ${ADMIN_SEED.email} | Orders linked to user_id ${adminUser.user_id}.`,
+    `Seed de demonstração finalizada. Email do admin: ${ADMIN_SEED.email} | Pedidos vinculados ao user_id ${adminUser.user_id}.`,
   );
 }

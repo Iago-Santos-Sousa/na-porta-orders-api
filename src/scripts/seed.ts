@@ -15,6 +15,6 @@ async function executeSeed() {
 }
 
 executeSeed().catch((error) => {
-  console.error("Seed failed:", error);
+  console.error("Erro ao executar a seed: ", error);
   process.exit(1);
 });
